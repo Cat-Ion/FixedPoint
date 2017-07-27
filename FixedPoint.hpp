@@ -1,8 +1,6 @@
 #ifndef FIXEDPOINT_HPP
 #define FIXEDPOINT_HPP
-#define NDEBUG
 #include <assert.h>
-#undef NDEBUG
 #include <algorithm>
 #include <cmath>
 #include <cstring>
