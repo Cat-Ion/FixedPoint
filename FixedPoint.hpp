@@ -3,6 +3,7 @@
 #define NDEBUG
 #include <assert.h>
 #undef NDEBUG
+#include <algorithm>
 #include <cmath>
 #include <cstring>
 #include <string>
@@ -13,6 +14,32 @@ template<> class make_bigger<uint8_t > { public: typedef uint16_t type; };
 template<> class make_bigger<uint16_t> { public: typedef uint32_t type; };
 template<> class make_bigger<uint32_t> { public: typedef uint64_t type; };
 
+template<typename T> unsigned nlz(T x);
+template<> unsigned nlz(uint32_t x) {
+    unsigned r = 0;
+    if (x <= 0x0000FFFF) { r += 16; x <<= 16; }
+    if (x <= 0x00FFFFFF) { r +=  8; x <<=  8; }
+    if (x <= 0x0FFFFFFF) { r +=  4; x <<=  4; }
+    if (x <= 0x3FFFFFFF) { r +=  2; x <<=  2; }
+    if (x <= 0x7FFFFFFF) { r +=  1; x <<=  1; }
+    return r;
+}
+template<> unsigned nlz(uint16_t x) {
+    unsigned r = 0;
+    if (x <= 0x00FF) { r +=  8; x <<=  8; }
+    if (x <= 0x0FFF) { r +=  4; x <<=  4; }
+    if (x <= 0x3FFF) { r +=  2; x <<=  2; }
+    if (x <= 0x7FFF) { r +=  1; x <<=  1; }
+    return r;
+}
+template<> unsigned nlz(uint8_t x) {
+    unsigned r = 0;
+    if (x <= 0x0F) { r +=  4; x <<=  4; }
+    if (x <= 0x3F) { r +=  2; x <<=  2; }
+    if (x <= 0x7F) { r +=  1; x <<=  1; }
+    return r;
+}
+
 template<unsigned size, typename _storageType = uint32_t>
 class MultiwordInteger
 {
@@ -20,14 +47,16 @@ public:
     typedef _storageType storageType;
     static const constexpr size_t numWords = size;
     static const constexpr size_t storageSize = sizeof(storageType) * 8;
-    _storageType s[size];
+
+    template<unsigned otherSize, typename otherStorageType>
+    friend class MultiwordInteger;
 
 protected:
     typedef typename std::make_signed<_storageType>::type signedType;
     typedef typename make_bigger<_storageType>::type bigType;
+    _storageType s[size];
 
 public:
-
     MultiwordInteger() {}
     template<unsigned otherSize>
     constexpr
@@ -48,24 +77,34 @@ public:
     }
 
     constexpr
-    MultiwordInteger(storageType v) {
+    MultiwordInteger(storageType const &v) {
         s[0] = v;
-        for (unsigned i = 1; i < size; i++) {
-            s[i] = 0;
+        if (static_cast<signedType>(v) < 0) {
+            for (unsigned i = 1; i < size; i++) {
+                s[i] = static_cast<signedType>(-1);
+            }
+        } else {
+            for (unsigned i = 1; i < size; i++) {
+                s[i] = 0;
+            }
         }
     }
 
     constexpr
     MultiwordInteger(int64_t v) {
         unsigned i = 0;
-        while (v && i < size) {
-            s[i] = v & ((1UL<<storageSize) - 1);
-            v >>= storageSize;
+        std::make_unsigned_t<int64_t> uv = v;
+        while (uv && i < size) {
+            s[i] = uv & ((1UL<<storageSize) - 1);
+            uv >>= storageSize;
             i++;
         }
         while (i < size) {
             s[i] = 0;
             i++;
+        }
+        if (v < 0) {
+            fill_leading_bits(leading_zeros());
         }
     }
 
@@ -73,12 +112,68 @@ public:
     MultiwordInteger(double v) {
         double sig = significand(v);
         int lg = ilogb(v);
-        if (lg < 52) {
+        if (lg < 63) {
             int64_t i = sig*(1UL<<lg);
             *this = i;
         } else {
-            *this = int64_t(sig * (1UL<<52));
-            *this <<= lg - 52;
+            *this = int64_t(sig * (1UL<<62));
+            *this <<= lg - 62;
+        }
+    }
+
+    template<unsigned otherSize, typename otherStorageType>
+    constexpr
+    MultiwordInteger(MultiwordInteger<otherSize, otherStorageType> const &o) {
+        static_assert((sizeof(storageType) % sizeof(otherStorageType)) == 0
+                      || (sizeof(otherStorageType) % sizeof(storageType)) == 0,
+                      "Types must fit into each other without remainder.");
+        if (sizeof(otherStorageType) < sizeof(storageType)) {
+            unsigned shiftNum = sizeof (storageType) / sizeof (otherStorageType);
+            unsigned shiftWidth = sizeof (otherStorageType) * 8;
+            unsigned i = 0;
+            for (i = 0; i < size && i*shiftNum < otherSize; i++) {
+                s[i] = 0;
+                unsigned start = shiftNum;
+                if (i*shiftNum + start > otherSize) {
+                    start = otherSize;
+                }
+                for (unsigned j = shiftNum; j-- > 0; ) {
+                    s[i] |= o.s[i*shiftNum + j] << (shiftWidth * j);
+                }
+            }
+            if (o.is_negative()) {
+                while (i < size) {
+                    s[i] = ~static_cast<storageType>(0);
+                    i++;
+                }
+            } else {
+                while (i < size) {
+                    s[i] = 0;
+                    i++;
+                }
+            }
+        } else {
+            unsigned shiftNum = sizeof (otherStorageType) / sizeof (storageType);
+            unsigned shiftWidth = sizeof (storageType) * 8;
+            unsigned i = 0, j = 0;
+            for (i = j = 0; i < size && j < otherSize; j++) {
+                otherStorageType v = o.s[j];
+                for (unsigned k = 0; k < shiftNum && i < size; k++, i++) {
+                    s[i] = v;
+                    v >>= shiftWidth;
+                }
+            }
+            if (o.is_negative()) {
+                while (i < size) {
+                    s[i] = ~static_cast<storageType>(0);
+                    i++;
+                }
+            } else {
+                while (i < size) {
+                    s[i] = 0;
+                    i++;
+                }
+            }
         }
     }
 
@@ -87,7 +182,7 @@ public:
     maxVal() {
         MultiwordInteger<size, storageType> r;
         for (unsigned i = 0; i < size-1; i++) {
-            r.s[0] = (bigType(1)<<(storageSize)) - 1;;
+            r.s[i] = (bigType(1)<<(storageSize)) - 1;;
         }
         r.s[size-1] = (1U<<(storageSize - 1)) - 1;
         return r;
@@ -98,18 +193,17 @@ public:
     minVal() {
         MultiwordInteger<size, storageType> r;
         for (unsigned i = 0; i < size-1; i++) {
-            r.s[0] = 0;
+            r.s[i] = 0;
         }
         r.s[size-1] = 1U<<(storageSize-1);
         return r;
     }
 
     constexpr
-    MultiwordInteger<size, storageType>
+    MultiwordInteger<size, storageType>&
     operator+=(MultiwordInteger<size, storageType> const &o) {
         storageType c = 0;
-        unsigned i = size;
-        while (i-- > 0) {
+        for(unsigned i = 0; i < size; i++) {
             bigType t = this->s[i] + o.s[i] + c;
             this->s[i] = t;
             c = t >> storageSize;
@@ -118,7 +212,7 @@ public:
     }
 
     constexpr
-    MultiwordInteger<size, storageType>
+    MultiwordInteger<size, storageType>&
     operator-=(MultiwordInteger<size, storageType> const &o) {
         bigType c = 0;
         for (unsigned i = 0; i < size; i++) {
@@ -132,32 +226,80 @@ public:
 
     template<unsigned otherSize>
     constexpr
-    MultiwordInteger<size, storageType>
+    MultiwordInteger<size, storageType>&
     operator*=(MultiwordInteger<otherSize, storageType> const &o) {
-        MultiwordInteger<size> nv;
+        MultiwordInteger<size, storageType> nv;
         mul<otherSize, size>(o, &nv);
         *this = nv;
+        return *this;
     }
 
     template<unsigned otherSize>
     constexpr
-    MultiwordInteger<size, storageType>
+    MultiwordInteger<size, storageType>&
     operator/=(MultiwordInteger<otherSize, storageType> const &o) {
-        *this = MultiwordInteger<size, storageType>(*this / o);
+        MultiwordInteger<size, storageType> q(int64_t(0));
+        quotrem(o, &q, static_cast<MultiwordInteger<otherSize, storageType>*>(nullptr));
+        *this = q;
         return *this;
     }
 
     constexpr
-    MultiwordInteger<size, storageType>
+    MultiwordInteger<size, storageType>&
+    operator++() {
+        bigType c = 1;
+        for (unsigned i = 0; i < size && c; i++) {
+            c += s[i];
+            s[i] = c;
+            c >>= storageSize;
+        }
+        return *this;
+    }
+
+    constexpr
+    MultiwordInteger<size, storageType>&
+    operator++(int) {
+        MultiwordInteger<size, storageType> r(*this);
+        ++(*this);
+        return r;
+    }
+
+    constexpr
+    MultiwordInteger<size, storageType>&
+    operator--() {
+        bigType c = ~static_cast<bigType>(0);
+        for (unsigned i = 0; i < size && c; i++) {
+            c += s[i];
+            s[i] = c;
+            c >>= storageSize;
+        }
+        return *this;
+    }
+
+    constexpr
+    MultiwordInteger<size, storageType>&
+    operator--(int) {
+        MultiwordInteger<size, storageType> r(*this);
+        *this--;
+        return r;
+    }
+
+    constexpr
+    MultiwordInteger<size, storageType>&
     operator%=(MultiwordInteger<size, storageType> const &o) {
         *this = *this % o;
     }
 
     constexpr
-    MultiwordInteger<size, storageType>
+    MultiwordInteger<size, storageType>&
     operator<<=(size_t n) {
         size_t w = n / storageSize;
         n %= storageSize;
+
+        if (w >= size) {
+            *this = int64_t(0);
+            return *this;
+        }
 
         if (n == 0) {
             for (unsigned i = size; i-- > w; ) {
@@ -183,10 +325,23 @@ public:
     }
 
     constexpr
-    MultiwordInteger<size, storageType>
+    MultiwordInteger<size, storageType>&
     operator>>=(size_t n) {
         size_t w = n / storageSize;
         n %= storageSize;
+
+        bool adjust_leading_bits = this->is_negative();
+
+        if (w >= size) {
+            if (adjust_leading_bits) {
+                for (unsigned i = 0; i < size; i++) {
+                    s[i] = ~static_cast<storageType>(0);
+                }
+            } else {
+                *this = int64_t(0);
+            }
+            return *this;
+        }
 
         if (n == 0) {
             for (unsigned i = 0; i < size-w; i++) {
@@ -194,6 +349,9 @@ public:
             }
             for (unsigned i = size-w; i < size; i++) {
                 s[i] = 0;
+            }
+            if (adjust_leading_bits) {
+                this->fill_leading_bits(w*storageSize);
             }
             return *this;
         }
@@ -208,14 +366,17 @@ public:
             this->s[i] = 0;
         }
 
+        if (adjust_leading_bits) {
+            this->fill_leading_bits(w * storageSize + n);
+        }
         return *this;
     }
 
     constexpr
     MultiwordInteger<size, storageType>
     operator-() const {
-        MultiwordInteger<size, storageType> r(int64_t(0));
-        r -= *this;
+        MultiwordInteger<size, storageType> r(*this);
+        r.negate();
         return r;
     }
 
@@ -224,6 +385,8 @@ public:
     operator<(MultiwordInteger<size, storageType> const &o) const {
         if (static_cast<signedType>(s[size-1]) < static_cast<signedType>(o.s[size-1])) {
             return true;
+        } else if(static_cast<signedType>(s[size-1]) > static_cast<signedType>(o.s[size-1])) {
+            return false;
         }
         for (unsigned i = size - 1; i-- > 0; ) {
             if (s[i] < o.s[i]) {
@@ -285,13 +448,17 @@ public:
             MultiwordInteger<size,      storageType>       *q,
             MultiwordInteger<otherSize, storageType>       *r) const {
         unsigned n = otherSize, m = size;
-        size_t s = o_.is_negative() ? ((-o_).nlz()) : o_.nlz();
+        size_t s = o_.is_negative() ? ((-o_).leading_zeros()) : o_.leading_zeros();
         n -= s / storageSize;
         s %= storageSize;
-        m -= this->nlz()/storageSize;
+        m -= this->leading_zeros()/storageSize;
 
-        for(unsigned i = size; i-- > m; ) {
-            q->s[i] = 0;
+        if (m == 0) {
+            *q = int64_t(0);
+            if (r) {
+                *r = *q;
+            }
+            return;
         }
 
         if (n < 2) {
@@ -301,20 +468,24 @@ public:
                 } else {
                     *q = maxVal();
                 }
+                if (r) {
+                    *r = int64_t(0);
+                }
                 return;
             }
 
-            bool negate = false;
-            if (m > 0 && static_cast<signedType>(o_.s[n-1] ^ this->s[m-1]) < 0) {
-                negate = true;
+            bool negate_result = false;
+            if (static_cast<signedType>(o_.s[n-1] ^ this->s[m-1]) < 0) {
+                negate_result = true;
             }
+            bool negate_remainder = o_.is_negative();
 
             storageType o = o_.is_negative() ? -static_cast<signedType>(o_.s[0]) : o_.s[0];
             MultiwordInteger<size, storageType> p;
 
             p = this->is_negative() ? -*this : *this;
 
-            int k = 0;
+            storageType k = 0;
             unsigned j = m;
             bigType b = ((bigType)1)<<storageSize;
             while (j-- > 0) {
@@ -324,26 +495,36 @@ public:
                 q->s[j] = (k * b + p.s[j]) / o;
                 k = (k * b + p.s[j]) - q->s[j] * o;
             }
-            if (r) {
-                r->s[0] = k;
-            }
-            if (negate) {
+
+            if (negate_result) {
                 q->negate();
-                if (r) {
-                    r->s[0] = -k;
+                if (k) {
+                    --(*q);
+                    k++;
                 }
             }
+            if (r) {
+                if (negate_remainder) {
+                    k = 1+~k;
+                }
+                *r = static_cast<storageType>(k);
+            }
         } else {
-
+            bool negate_result = false;
+            bool negate_remainder = false;
             MultiwordInteger<size+1, storageType> nu;
             MultiwordInteger<otherSize, storageType> nv;
+            *q = int64_t(0);
 
             if (this->is_negative()) {
                 nu = -*this;
+                negate_result = true;
             } else {
                 nu = *this;
             }
             if (o_.is_negative()) {
+                negate_result = !negate_result;
+                negate_remainder = true;
                 nv = -o_;
             } else {
                 nv = o_;
@@ -370,8 +551,8 @@ public:
                     }
                 } while (retry);
 
-                int k = 0;
-                bigType t = 0;
+                std::make_signed_t<bigType> k = 0;
+                std::make_signed_t<bigType> t = 0;
                 for (unsigned i = 0; i < n; i++) {
                     p = qhat * nv.s[i];
                     t = nu.s[i+j] - k - (p & ((1UL<<storageSize)-1));
@@ -394,10 +575,27 @@ public:
                 }
             }
 
-            if (r) {
-                *r = nu;
-                *r >>= s;
+            if (negate_result) {
+                if (nu) {
+                    ++(*q);
+                }
+                q->negate();
             }
+            if (!r) {
+                return;
+            }
+            nu >>= s;
+            if (negate_result && nu) {
+                if (negate_remainder) {
+                    nu += MultiwordInteger<size+1, storageType>(o_);
+                } else {
+                    nu -= MultiwordInteger<size+1, storageType>(o_);
+                    nu.negate();
+                }
+            } else if (negate_remainder) {
+                nu.negate();
+            }
+            *r = nu;
         }
     }
 
@@ -406,10 +604,20 @@ public:
     negate() {
         bigType c = 1;
         for (unsigned i = 0; i < size; i++) {
-            c += ~s[i];
+            c += static_cast<storageType>(~s[i]);
             s[i] = c;
             c >>= storageSize;
         }
+    }
+
+    constexpr
+    operator bool() const {
+        for (unsigned i = 0; i < size; i++) {
+            if (s[i]) {
+                return true;
+            }
+        }
+        return false;
     }
 
     explicit constexpr
@@ -425,32 +633,25 @@ public:
         bigType c = 1;
 
         for (unsigned i = 0; i < size; i++) {
-            bigType t = ~s[i] + c;
-            storageType u = t;
+            c += static_cast<storageType>(~s[i]);
+            storageType u = c;
             r += n * u;
             n *= m;
-            c = t >> storageSize;
+            c >>= storageSize;
         }
 
         return -r;
     }
 
     constexpr
-    size_t
-    nlz() const {
-        size_t r = 0;
+    unsigned
+    leading_zeros() const {
+        unsigned r = 0;
         for (unsigned i = size; i-- > 0; ) {
             if (s[i] == 0) {
                 r += storageSize;
             } else {
-                unsigned x = s[i];
-                if (x <= 0x0000FFFF) { r += 16; x <<= 16; }
-                if (x <= 0x00FFFFFF) { r +=  8; x <<=  8; }
-                if (x <= 0x0FFFFFFF) { r +=  4; x <<=  4; }
-                if (x <= 0x3FFFFFFF) { r +=  2; x <<=  2; }
-                if (x <= 0x7FFFFFFF) { r +=  1; x <<=  1; }
-                r -= 32 - storageSize;
-                return r;
+                return r + nlz(s[i]);
             }
         }
         return r;
@@ -477,17 +678,86 @@ public:
         }
         return false;
     }
+
+    constexpr
+    void
+    fill_leading_bits(unsigned num) {
+        unsigned i = size - 1;
+        while (num >= storageSize) {
+            s[i] = ~static_cast<storageType>(0);
+            num -= storageSize;
+            i--;
+        }
+        if (num) {
+            s[i] |= (~static_cast<storageType>(0)) << (storageSize - num);
+        }
+    }
 };
 
-template<int iw, unsigned mfw, typename backingStorageType = uint32_t>
+template<int integerWidth, unsigned minimumFractionalWidth, typename backingStorageType = uint32_t>
 class FixedPoint
 {
+public:
+    typedef MultiwordInteger<(integerWidth+minimumFractionalWidth+sizeof(backingStorageType)*8-1)/(sizeof(backingStorageType)*8), backingStorageType> StorageType;
 protected:
-    typedef FixedPoint<iw,mfw,backingStorageType> FP;
-    typedef MultiwordInteger<(iw+mfw+sizeof(backingStorageType)*8-1)/(sizeof(backingStorageType)*8), backingStorageType> StorageType;
-    static constexpr size_t fw = StorageType::storageSize * StorageType::numWords - iw - 1;
+    typedef FixedPoint<integerWidth,minimumFractionalWidth,backingStorageType> FP;
+    static constexpr size_t fw = StorageType::storageSize * StorageType::numWords - integerWidth - 1;
 public:
     StorageType v;
+
+    constexpr
+    FixedPoint()
+    {
+    }
+
+    constexpr
+    FixedPoint(double v)
+    {
+        if (v > maxVal<double>()) {
+            v = maxVal<double>();
+        } else if (v < minVal<double>()) {
+            v = minVal<double>();
+        }
+        this->v = v * pow(2., (double)fw);
+    }
+
+    constexpr
+    FixedPoint(int v)
+    {
+        if (v > 1 << integerWidth) {
+            this->v = StorageType::maxVal();
+        } else if(v < -(1<<integerWidth)) {
+            this->v = StorageType::minVal();
+        } else {
+            this->v = (int64_t)v;
+            this->v <<= fw;
+        }
+    }
+
+    constexpr
+    FixedPoint(FixedPoint const &o) : v(o.v) {}
+
+    constexpr
+    FixedPoint(StorageType const &s) : v(s) {}
+
+    template<int oiw, unsigned omfw, typename otherStorageType>
+    constexpr
+    FixedPoint(FixedPoint<oiw,omfw,otherStorageType> const &o) {
+        unsigned ofw = FixedPoint<oiw, omfw, otherStorageType>::fractionalWidth();
+        if (ofw > fw) {
+            typename FixedPoint<oiw, omfw, otherStorageType>::StorageType ov = o.v>>(ofw-fw);
+            this->v = ov;
+        } else {
+            this->v = o.v;
+            this->v <<= (fw - ofw);
+        }
+    }
+
+    constexpr static
+    unsigned
+    fractionalWidth() {
+        return fw;
+    }
 
     template<typename T>
     constexpr static
@@ -511,45 +781,6 @@ public:
     smallestVal()
     {
         return T(FP(StorageType(int64_t(1))));
-    }
-
-    constexpr
-    FixedPoint()
-    {
-    }
-
-    constexpr
-    FixedPoint(double v)
-    {
-        if (v > maxVal<double>()) {
-            v = maxVal<double>();
-        } else if (v < minVal<double>()) {
-            v = minVal<double>();
-        }
-        this->v = v * pow(2., (double)fw);
-    }
-
-    constexpr
-    FixedPoint(int v)
-    {
-        if (v > 1 << iw) {
-            this->v = StorageType::maxVal();
-        } else if(v < -(1<<iw)) {
-            this->v = StorageType::minVal();
-        } else {
-            this->v = (int64_t)v;
-            this->v <<= fw;
-        }
-    }
-
-    constexpr
-    FixedPoint(FixedPoint const &o) {
-        this->v = o.v;
-    }
-
-    constexpr
-    FixedPoint(StorageType const &s) {
-        this->v = s;
     }
 
     explicit constexpr
@@ -619,7 +850,7 @@ public:
     operator/=(FP const &o) {
         assert((double)*this / (double)o <= maxVal<double>());
         assert((double)*this / (double)o >= minVal<double>());
-        MultiwordInteger<StorageType::numWords*2-iw/StorageType::storageSize, backingStorageType> nv(this->v);
+        MultiwordInteger<StorageType::numWords+(fw+StorageType::storageSize-1)/StorageType::storageSize, backingStorageType> nv(this->v);
         nv <<= fw;
         nv /= o.v;
         v = nv;
@@ -704,7 +935,7 @@ operator/ (MultiwordInteger<leftSize, storageType> left,
 template<unsigned leftSize, unsigned rightSize, typename storageType = uint32_t>
 constexpr MultiwordInteger<rightSize, storageType>
 operator% (MultiwordInteger<leftSize, storageType> left,
-           MultiwordInteger<leftSize, storageType> const &right) {
+           MultiwordInteger<rightSize, storageType> const &right) {
     MultiwordInteger<leftSize, storageType> q;
     MultiwordInteger<rightSize, storageType> r;
     left.quotrem(right, &q, &r);
@@ -738,41 +969,41 @@ template<unsigned size, typename storageType = uint32_t>
 constexpr MultiwordInteger<size, storageType>
 operator<<(MultiwordInteger<size, storageType> left, size_t right) { return left <<= right; }
 
-template<int iw, unsigned mfw, typename backingStorageType = uint32_t>
-constexpr FixedPoint<iw, mfw, backingStorageType>
-operator+ (FixedPoint<iw, mfw, backingStorageType> left,
-           FixedPoint<iw, mfw, backingStorageType> const &right) { return left += right; }
+template<int integerWidth, unsigned minimumFractionalWidth, typename backingStorageType = uint32_t>
+constexpr FixedPoint<integerWidth, minimumFractionalWidth, backingStorageType>
+operator+ (FixedPoint<integerWidth, minimumFractionalWidth, backingStorageType> left,
+           FixedPoint<integerWidth, minimumFractionalWidth, backingStorageType> const &right) { return left += right; }
 
-template<int iw, unsigned mfw, typename backingStorageType = uint32_t>
-constexpr FixedPoint<iw, mfw, backingStorageType>
-operator- (FixedPoint<iw, mfw, backingStorageType> left,
-           FixedPoint<iw, mfw, backingStorageType> const &right) { return left -= right; }
+template<int integerWidth, unsigned minimumFractionalWidth, typename backingStorageType = uint32_t>
+constexpr FixedPoint<integerWidth, minimumFractionalWidth, backingStorageType>
+operator- (FixedPoint<integerWidth, minimumFractionalWidth, backingStorageType> left,
+           FixedPoint<integerWidth, minimumFractionalWidth, backingStorageType> const &right) { return left -= right; }
 
-template<int iw, unsigned mfw, typename backingStorageType = uint32_t>
-constexpr FixedPoint<iw, mfw, backingStorageType>
-operator* (FixedPoint<iw, mfw, backingStorageType> left,
-           FixedPoint<iw, mfw, backingStorageType> const &right) { return left *= right; }
+template<int integerWidth, unsigned minimumFractionalWidth, typename backingStorageType = uint32_t>
+constexpr FixedPoint<integerWidth, minimumFractionalWidth, backingStorageType>
+operator* (FixedPoint<integerWidth, minimumFractionalWidth, backingStorageType> left,
+           FixedPoint<integerWidth, minimumFractionalWidth, backingStorageType> const &right) { return left *= right; }
 
-template<int iw, unsigned mfw, typename backingStorageType = uint32_t>
-constexpr FixedPoint<iw, mfw, backingStorageType>
-operator/ (FixedPoint<iw, mfw, backingStorageType> left,
-           FixedPoint<iw, mfw, backingStorageType> const &right) { return left /= right; }
+template<int integerWidth, unsigned minimumFractionalWidth, typename backingStorageType = uint32_t>
+constexpr FixedPoint<integerWidth, minimumFractionalWidth, backingStorageType>
+operator/ (FixedPoint<integerWidth, minimumFractionalWidth, backingStorageType> left,
+           FixedPoint<integerWidth, minimumFractionalWidth, backingStorageType> const &right) { return left /= right; }
 
-template<int iw, unsigned mfw, typename backingStorageType = uint32_t>
-constexpr bool operator> (FixedPoint<iw, mfw, backingStorageType> const &left,
-                          FixedPoint<iw, mfw, backingStorageType> const &right) { return right < left; }
+template<int integerWidth, unsigned minimumFractionalWidth, typename backingStorageType = uint32_t>
+constexpr bool operator> (FixedPoint<integerWidth, minimumFractionalWidth, backingStorageType> const &left,
+                          FixedPoint<integerWidth, minimumFractionalWidth, backingStorageType> const &right) { return right < left; }
 
-template<int iw, unsigned mfw, typename backingStorageType = uint32_t>
-constexpr bool operator<=(FixedPoint<iw, mfw, backingStorageType> const &left,
-                          FixedPoint<iw, mfw, backingStorageType> const &right) { return !(left > right); }
+template<int integerWidth, unsigned minimumFractionalWidth, typename backingStorageType = uint32_t>
+constexpr bool operator<=(FixedPoint<integerWidth, minimumFractionalWidth, backingStorageType> const &left,
+                          FixedPoint<integerWidth, minimumFractionalWidth, backingStorageType> const &right) { return !(left > right); }
 
-template<int iw, unsigned mfw, typename backingStorageType = uint32_t>
-constexpr bool operator>=(FixedPoint<iw, mfw, backingStorageType> const &left,
-                          FixedPoint<iw, mfw, backingStorageType> const &right) { return !(left < right); }
+template<int integerWidth, unsigned minimumFractionalWidth, typename backingStorageType = uint32_t>
+constexpr bool operator>=(FixedPoint<integerWidth, minimumFractionalWidth, backingStorageType> const &left,
+                          FixedPoint<integerWidth, minimumFractionalWidth, backingStorageType> const &right) { return !(left < right); }
 
-template<int iw, unsigned mfw, typename backingStorageType = uint32_t>
-constexpr bool operator!=(FixedPoint<iw, mfw, backingStorageType> const &left,
-                          FixedPoint<iw, mfw, backingStorageType> const &right) { return !(left == right); }
+template<int integerWidth, unsigned minimumFractionalWidth, typename backingStorageType = uint32_t>
+constexpr bool operator!=(FixedPoint<integerWidth, minimumFractionalWidth, backingStorageType> const &left,
+                          FixedPoint<integerWidth, minimumFractionalWidth, backingStorageType> const &right) { return !(left == right); }
 
 
 namespace std {
@@ -794,25 +1025,64 @@ namespace std {
     constexpr FixedPoint<iw,mfw, backingStorageType>
     atan2(FixedPoint<iw,mfw,backingStorageType> const &y, FixedPoint<iw,mfw,backingStorageType> const &x)
     {
+        volatile bool print = false;
+        FixedPoint<iw,mfw,backingStorageType> ya = y.nabs(), xa = x.nabs();
+        auto mxmn = std::minmax(ya, xa);
         FixedPoint<iw,mfw,backingStorageType>
-                mx = std::min(y.nabs(), x.nabs()),
-                mn = std::max(y.nabs(), x.nabs()),
+                mx = mxmn.first,
+                mn = mxmn.second,
                 a = mn / mx,
                 s = a*a,
                 r(-0.0464964749);
+        FixedPoint<iw, mfw, backingStorageType> const
+                c1(0.15931422),
+                c2(-0.327622764),
+                pi2(M_PI_2),
+                pi(M_PI);
 
-        r = r * s + FixedPoint<iw,mfw,backingStorageType>(0.15931422);
-        r = r * s + FixedPoint<iw,mfw,backingStorageType>(-0.327622764);
+        if (print) {
+            printf("\nya %20.17g\n", double(ya));
+            printf("xa %20.17g\n", double(xa));
+            printf("mn %20.17g\n", double(mn));
+            printf("mx %20.17g\n", double(mx));
+            printf("a %20.17g\n", double(a));
+            printf("s %20.17g\n", double(s));
+            printf("r1 %20.17g\n", double(r));
+        }
+        r = r * s + c1;
+        if (print) {
+            printf("r2 %20.17g\n", double(r));
+        }
+        r = r * s + c2;
+        if (print) {
+            printf("r3 %20.17g\n", double(r));
+        }
         r = r * s * a + a;
+        if (print) {
+            printf("r4 %20.17g\n", double(r));
+        }
 
-        if (y.nabs() < x.nabs()) {
-            r = FixedPoint<iw,mfw,backingStorageType>(M_PI_2) - r;
+        if (ya < xa) {
+            r = pi2 - r;
+            if (print) {
+                printf("r5 %20.17g\n", double(r));
+            }
         }
         if (x.is_negative()) {
-            r = FixedPoint<iw,mfw,backingStorageType>(M_PI) - r;
+            r = pi - r;
+            if (print) {
+                printf("r6 %20.17g\n", double(r));
+            }
         }
         if (y.is_negative()) {
             r = -r;
+            if (print) {
+                printf("r7 %20.17g\n", double(r));
+            }
+        }
+
+        if (print) {
+            fflush(stdout);
         }
 
         return r;

@@ -1,0 +1,6 @@
+*~
+*.autosave
+*.a
+*.o
+.*.swp
+FixedPointTests
