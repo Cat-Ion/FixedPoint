@@ -1025,7 +1025,6 @@ namespace std {
     constexpr FixedPoint<iw,mfw, backingStorageType>
     atan2(FixedPoint<iw,mfw,backingStorageType> const &y, FixedPoint<iw,mfw,backingStorageType> const &x)
     {
-        volatile bool print = false;
         FixedPoint<iw,mfw,backingStorageType> ya = y.nabs(), xa = x.nabs();
         auto mxmn = std::minmax(ya, xa);
         FixedPoint<iw,mfw,backingStorageType>
@@ -1040,49 +1039,18 @@ namespace std {
                 pi2(M_PI_2),
                 pi(M_PI);
 
-        if (print) {
-            printf("\nya %20.17g\n", double(ya));
-            printf("xa %20.17g\n", double(xa));
-            printf("mn %20.17g\n", double(mn));
-            printf("mx %20.17g\n", double(mx));
-            printf("a %20.17g\n", double(a));
-            printf("s %20.17g\n", double(s));
-            printf("r1 %20.17g\n", double(r));
-        }
         r = r * s + c1;
-        if (print) {
-            printf("r2 %20.17g\n", double(r));
-        }
         r = r * s + c2;
-        if (print) {
-            printf("r3 %20.17g\n", double(r));
-        }
         r = r * s * a + a;
-        if (print) {
-            printf("r4 %20.17g\n", double(r));
-        }
 
         if (ya < xa) {
             r = pi2 - r;
-            if (print) {
-                printf("r5 %20.17g\n", double(r));
-            }
         }
         if (x.is_negative()) {
             r = pi - r;
-            if (print) {
-                printf("r6 %20.17g\n", double(r));
-            }
         }
         if (y.is_negative()) {
             r = -r;
-            if (print) {
-                printf("r7 %20.17g\n", double(r));
-            }
-        }
-
-        if (print) {
-            fflush(stdout);
         }
 
         return r;
