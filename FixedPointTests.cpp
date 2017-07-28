@@ -54,7 +54,12 @@ SUITE(MultiwordInteger) {
     b = int64_t(0x7FFFFFFF);
     a = b;
     // Assignment from a smaller type should be exact
-    CHECK(a == b);
+    CHECK(double(a) == double(b));
+
+    // Assignment from a type that doesn't fill the storage completely
+    MultiwordInteger<3, uint8_t> c(int64_t(0xC0FFEE));
+    a = c;
+    CHECK(double(a) == double(c));
   }
 
   TEST(limits) {
@@ -178,6 +183,14 @@ SUITE(MultiwordInteger) {
     CHECK(a/-b == -d);
     CHECK((-a)/b == -d);
     CHECK((-a)/(-b) == c);
+
+    // Division by zero
+    a = 1.;
+    b = 0.;
+    c = MultiwordInteger<2, uint16_t>::maxVal();
+    d = MultiwordInteger<2, uint16_t>::minVal();
+    CHECK(a/b == c);
+    CHECK((-a)/b == d);
   }
 
   TEST(modulo) {
@@ -258,6 +271,20 @@ SUITE(MultiwordInteger) {
     e = a % (-b);
     CHECK(e == -c);
     CHECK(d + e == a);
+
+    // Division of zero returns 0
+    a = 0.;
+    b = 1.;
+    d = a / b * b;
+    e = a % b;
+    CHECK(d == a);
+    CHECK(e == a);
+
+    // Division by zero returns 0
+    a = 1.;
+    b = 0.;
+    e = a % b;
+    CHECK(e == b);
   }
 
   TEST(comparison) {
@@ -270,6 +297,8 @@ SUITE(MultiwordInteger) {
     CHECK(a >= b);
     CHECK(b < a);
     CHECK(b <= a);
+
+    CHECK(!(a < a));
 
     CHECK(a != b);
     CHECK(a == a);
@@ -332,6 +361,24 @@ SUITE(MultiwordInteger) {
 
     // Too large shift should still sign extend
     a >>= 300;
+    b = -1.;
+    CHECK(a == b);
+
+    // Huge shift for positive values
+    a = 555.;
+    a >>= 300;
+    b = 0.;
+    CHECK(a == b);
+
+    // Shift by storageSize
+    a = 65536.;
+    a >>= 16;
+    b = 1.;
+    CHECK(a == b);
+
+    // Shift by storageSize, negative number
+    a = -65536.;
+    a >>= 16;
     b = -1.;
     CHECK(a == b);
   }
@@ -426,6 +473,18 @@ SUITE(FixedPoint) {
 
     FixedPoint<30, 1> f(s);
     CHECK(double(f) == 0.5);
+
+    a = 100.;
+    CHECK(double(a) == (FixedPoint<3, 15, uint16_t>::maxVal<double>()));
+
+    a = -100.;
+    CHECK(double(a) == (FixedPoint<3, 15, uint16_t>::minVal<double>()));
+
+    a = int(100);
+    CHECK(double(a) == (FixedPoint<3, 15, uint16_t>::maxVal<double>()));
+
+    a = int(-100);
+    CHECK(double(a) == (FixedPoint<3, 15, uint16_t>::minVal<double>()));
   }
 
   TEST(limits) {
@@ -452,6 +511,11 @@ SUITE(FixedPoint) {
     c = (1. + pow(2., -10));
     CHECK((a + b) == c);
     CHECK((b + a) == c);
+
+    a = -1.;
+    b = -2.;
+    c = -3.;
+    CHECK((a+b) == c);
   }
 
   TEST(subtraction) {
