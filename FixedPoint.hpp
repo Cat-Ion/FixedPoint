@@ -242,9 +242,7 @@ public:
     constexpr
     MultiwordInteger<size, storageType>&
     operator/=(MultiwordInteger<otherSize, storageType> const &o) {
-        MultiwordInteger<size, storageType> q(int64_t(0));
-        quotrem(o, &q, static_cast<MultiwordInteger<otherSize, storageType>*>(nullptr));
-        *this = q;
+        quotrem(o, this, static_cast<MultiwordInteger<otherSize, storageType>*>(nullptr));
         return *this;
     }
 
@@ -518,7 +516,6 @@ public:
             bool negate_remainder = false;
             MultiwordInteger<size+1, storageType> nu;
             MultiwordInteger<otherSize, storageType> nv;
-            *q = int64_t(0);
 
             if (this->is_negative()) {
                 nu = -*this;
@@ -533,6 +530,8 @@ public:
             } else {
                 nv = o_;
             }
+
+            *q = int64_t(0);
 
             nu <<= s;
             nv <<= s;
