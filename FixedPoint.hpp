@@ -784,7 +784,7 @@ public:
     explicit constexpr
     operator double() const
     {
-        double dv = v;
+        double dv = double(v);
         double p2 = pow(2., -(double) fw);
         double r = p2 * dv;
         return r;
