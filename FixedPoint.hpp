@@ -91,7 +91,7 @@ public:
     constexpr
     MultiwordInteger(int64_t v) {
         unsigned i = 0;
-        std::make_unsigned_t<int64_t> uv = v;
+        typename std::make_unsigned<int64_t>::type uv = v;
         while (uv && i < size) {
             s[i] = uv & ((1UL<<storageSize) - 1);
             uv >>= storageSize;
@@ -549,8 +549,8 @@ public:
                     }
                 } while (retry);
 
-                std::make_signed_t<bigType> k = 0;
-                std::make_signed_t<bigType> t = 0;
+                typename std::make_signed<bigType>::type k = 0;
+                typename std::make_signed<bigType>::type t = 0;
                 for (unsigned i = 0; i < n; i++) {
                     p = qhat * nv.s[i];
                     t = nu.s[i+j] - k - (p & ((1UL<<storageSize)-1));
@@ -784,7 +784,7 @@ public:
     explicit constexpr
     operator double() const
     {
-        double dv = v;
+        double dv = double(v);
         double p2 = pow(2., -(double) fw);
         double r = p2 * dv;
         return r;
