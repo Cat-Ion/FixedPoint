@@ -1,5 +1,5 @@
-CXXFLAGS += -Wall -pedantic -std=c++17
-LDFLAGS = -lcpptest
+CXXFLAGS += -Wall -pedantic -std=c++17 -g
+LDFLAGS = -lUnitTest++
 
 all: tests
 
@@ -11,7 +11,7 @@ FixedPointTests.o: FixedPointTests.cpp FixedPoint.hpp
 tests: FixedPointTests
 	./FixedPointTests
 
-.PHONY: clean
+.PHONY: clean tests
 
 clean:
 	rm -rf FixedPointTests.o FixedPointTests
