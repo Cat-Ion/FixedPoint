@@ -11,7 +11,7 @@ FixedPointTests.o: FixedPointTests.cpp FixedPoint.hpp
 tests: FixedPointTests
 	./FixedPointTests
 
-.PHONY: clean
+.PHONY: clean tests
 
 clean:
 	rm -rf FixedPointTests.o FixedPointTests
