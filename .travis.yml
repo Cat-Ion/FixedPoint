@@ -34,7 +34,7 @@ addons:
       - libunittest++-dev
 
 script:
-  - make test
+  - make tests
 
 notifications:
   irc:
