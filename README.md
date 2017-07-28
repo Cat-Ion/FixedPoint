@@ -17,7 +17,7 @@ The variables
 have the same integer precision of 5 bits, and the same fractional precision
 of
 
-    32 * ceil(5+35)/32 - 5 - 1 = 58
+    32 * ceil((5+35)/32) - 5 - 1 = 58
 
 bits - the minimal storage size is rounded up to a multiple of the size of the
 storage type; then the bits needed for the integral part and sign bit are subtracted.
