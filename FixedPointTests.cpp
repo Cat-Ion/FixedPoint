@@ -617,8 +617,7 @@ SUITE(FixedPoint) {
       x = dx;
       a = std::atan2(y, x);
 
-      std::string msg = std::string("Bits: ") + std::to_string(bits) + ": Iteration " + std::to_string(i) + ", angle: " + std::to_string(atan2(dy,dx)/M_PI*180);
-      CHECK_CLOSE(double(a), da, 0.5*1e-4 * 2*M_PI);
+      CHECK_CLOSE(da, double(a), 0.5*1e-4 * 2*M_PI);
     }
   }
 
