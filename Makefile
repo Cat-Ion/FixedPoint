@@ -15,7 +15,9 @@ tests: FixedPointTests
 
 coverage: FixedPoint.hpp.gcov
 
-FixedPoint.hpp.gcov:
+FixedPoint.hpp.gcov: FixedPointTests
+	rm -rf *.gcov *.gcda
+	./FixedPointTests
 	gcov FixedPointTests.gcda
 
 .PHONY: clean tests coverage
