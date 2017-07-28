@@ -1,6 +1,6 @@
 #include <iostream>
 #include <stdint.h>
-#include <UnitTest++/UnitTest++.h>
+#include <UnitTest++.h>
 #include "FixedPoint.hpp"
 SUITE(MultiwordInteger) {
   TEST(zero_construction) {

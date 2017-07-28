@@ -1,5 +1,8 @@
-CXXFLAGS += -Wall -pedantic -std=c++17 -g
+UNITTEST_CPP_INCLUDE ?= /usr/include/UnitTest++
+
+CXXFLAGS += -Wall -pedantic -std=c++14 -g -I$(UNITTEST_CPP_INCLUDE)
 LDFLAGS = -lUnitTest++
+
 
 all: tests
 
