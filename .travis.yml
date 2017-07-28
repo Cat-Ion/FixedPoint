@@ -26,6 +26,8 @@ matrix:
             - libunittest++-dev
       env:
         - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
+      after_success:
+        - coveralls 
 
 before_install:
     - eval "${MATRIX_EVAL}"
@@ -35,9 +37,6 @@ before_install:
 script:
   - make tests
   - make coverage
-
-after_success:
-  - coveralls 
 
 notifications:
   irc:
