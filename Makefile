@@ -9,6 +9,7 @@ FixedPointTests: FixedPointTests.o
 FixedPointTests.o: FixedPointTests.cpp FixedPoint.hpp
 
 tests: FixedPointTests
+	ls /usr/include
 	./FixedPointTests
 
 .PHONY: clean tests
