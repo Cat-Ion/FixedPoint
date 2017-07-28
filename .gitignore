@@ -3,4 +3,7 @@
 *.a
 *.o
 .*.swp
+*.gcov
+*.gcda
+*.gcno
 FixedPointTests
