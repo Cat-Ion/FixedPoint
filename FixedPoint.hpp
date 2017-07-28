@@ -481,20 +481,17 @@ public:
 
         bool negate_result = false;
         bool negative_remainder = false;
+        MultiwordInteger<size+1, storageType> unsigned_dividend(*this);
 
         if (this->is_negative()) {
             negate_result = true;
+            unsigned_dividend.negate();
         }
 
         if (divisor.is_negative()) {
             negate_result = !negate_result;
             negative_remainder = true;
             divisor.negate();
-        }
-
-        MultiwordInteger<size+1, storageType> unsigned_dividend(*this);
-        if (this->is_negative()) {
-            unsigned_dividend.negate();
         }
 
         if (divisor_length < 2) {
