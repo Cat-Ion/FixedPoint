@@ -242,7 +242,7 @@ public:
     constexpr
     MultiwordInteger<size, storageType>&
     operator/=(MultiwordInteger<otherSize, storageType> const &o) {
-        quotrem(o, this, static_cast<MultiwordInteger<otherSize, storageType>*>(nullptr));
+        quotrem(o, *this, static_cast<MultiwordInteger<otherSize, storageType>*>(nullptr));
         return *this;
     }
 
@@ -259,7 +259,7 @@ public:
     }
 
     constexpr
-    MultiwordInteger<size, storageType>&
+    MultiwordInteger<size, storageType>
     operator++(int) {
         MultiwordInteger<size, storageType> r(*this);
         ++(*this);
@@ -446,108 +446,94 @@ public:
     template<unsigned otherSize>
     constexpr
     void
-    quotrem(MultiwordInteger<otherSize, storageType> const &o_,
-            MultiwordInteger<size,      storageType>       *q,
-            MultiwordInteger<otherSize, storageType>       *r) const {
-        unsigned n = otherSize, m = size;
-        size_t s = o_.is_negative() ? ((-o_).leading_zeros()) : o_.leading_zeros();
-        n -= s / storageSize;
+    quotrem(MultiwordInteger<otherSize, storageType> divisor,
+            MultiwordInteger<size,      storageType> &qotient,
+            MultiwordInteger<otherSize, storageType> *remainder) const {
+        unsigned divisorLength = otherSize, dividendLength = size;
+        size_t s = divisor.is_negative() ? ((-divisor).leading_zeros()) : divisor.leading_zeros();
+        divisorLength -= s / storageSize;
         s %= storageSize;
-        m -= this->leading_zeros()/storageSize;
+        dividendLength -= this->leading_zeros()/storageSize;
 
-        if (m == 0) {
-            *q = int64_t(0);
-            if (r) {
-                *r = *this;
+        if (dividendLength == 0) {
+            qotient = int64_t(0);
+            if (remainder) {
+                *remainder = *this;
             }
             return;
         }
 
-        if (n < 2) {
-            if (n == 0) {
-                if (this->is_negative()) {
-                    *q = minVal();
-                } else {
-                    *q = maxVal();
-                }
-                if (r) {
-                    *r = int64_t(0);
-                }
-                return;
+        if (divisorLength == 0) {
+            if (this->is_negative()) {
+                qotient = minVal();
+            } else {
+                qotient = maxVal();
             }
-
-            bool negate_result = false;
-            if (static_cast<signedType>(o_.s[n-1] ^ this->s[m-1]) < 0) {
-                negate_result = true;
+            if (remainder) {
+                *remainder = int64_t(0);
             }
-            bool negate_remainder = o_.is_negative();
+            return;
+        }
 
-            storageType o = o_.is_negative() ? -static_cast<signedType>(o_.s[0]) : o_.s[0];
-            MultiwordInteger<size, storageType> p;
+        bool negate_result = false;
+        bool negate_remainder = false;
 
-            p = this->is_negative() ? -*this : *this;
+        if (this->is_negative()) {
+            negate_result = true;
+        }
 
-            storageType k = 0;
-            unsigned j = m;
-            bigType b = ((bigType)1)<<storageSize;
-            while (j-- > 0) {
-                bigType t = b*k;
-                t += p.s[j];
-                t /= o;
-                q->s[j] = (k * b + p.s[j]) / o;
-                k = (k * b + p.s[j]) - q->s[j] * o;
-            }
+        if (divisor.is_negative()) {
+            negate_result = !negate_result;
+            negate_remainder = true;
+            divisor.negate();
+        }
+
+        if (divisorLength < 2) {
+            MultiwordInteger<size, storageType> unsignedDividend;
+            unsignedDividend = this->is_negative() ? -*this : *this;
+            unsignedQuotrem(unsignedDividend, divisor, qotient, dividendLength);
 
             if (negate_result) {
-                q->negate();
-                if (k) {
-                    --(*q);
-                    k++;
+                qotient.negate();
+                if (divisor) {
+                    --qotient;
+                    divisor++;
                 }
             }
-            if (r) {
+            if (remainder) {
                 if (negate_remainder) {
-                    k = 1+~k;
+                    divisor.negate();
                 }
-                *r = static_cast<storageType>(k);
+                *remainder = divisor;
             }
         } else {
-            bool negate_result = false;
-            bool negate_remainder = false;
             MultiwordInteger<size+1, storageType> nu;
             MultiwordInteger<otherSize, storageType> nv;
 
             if (this->is_negative()) {
                 nu = -*this;
-                negate_result = true;
             } else {
                 nu = *this;
             }
-            if (o_.is_negative()) {
-                negate_result = !negate_result;
-                negate_remainder = true;
-                nv = -o_;
-            } else {
-                nv = o_;
-            }
-
-            *q = int64_t(0);
+            nv = divisor;
 
             nu <<= s;
             nv <<= s;
 
-            for (int j = m - n; j >= 0; j--) {
+            qotient = int64_t(0);
+
+            for (int j = dividendLength - divisorLength; j >= 0; j--) {
                 bigType b = 1UL<<storageSize;
                 bigType p = 0;
-                bigType qhat = (nu.s[j+n] * b + nu.s[j+n-1]) / nv.s[n-1];
-                bigType rhat = (nu.s[j+n] * b + nu.s[j+n-1]) - qhat * nv.s[n-1];
+                bigType qhat = (nu.s[j+divisorLength] * b + nu.s[j+divisorLength-1]) / nv.s[divisorLength-1];
+                bigType rhat = (nu.s[j+divisorLength] * b + nu.s[j+divisorLength-1]) - qhat * nv.s[divisorLength-1];
 
                 bool retry = false;
                 do {
                     retry = false;
-                    if (qhat >= b || qhat * nv.s[n-2] > b*rhat + nu.s[j+n-2]) {
+                    if (qhat >= b || qhat * nv.s[divisorLength-2] > b*rhat + nu.s[j+divisorLength-2]) {
                         qhat--;
-                        rhat += nv.s[n-1];
+                        rhat += nv.s[divisorLength-1];
                         if (rhat < b) {
                             retry = true;
                         }
@@ -556,52 +542,71 @@ public:
 
                 typename std::make_signed<bigType>::type k = 0;
                 typename std::make_signed<bigType>::type t = 0;
-                for (unsigned i = 0; i < n; i++) {
+                for (unsigned i = 0; i < divisorLength; i++) {
                     p = qhat * nv.s[i];
                     t = nu.s[i+j] - k - (p & ((1UL<<storageSize)-1));
                     nu.s[i+j] = t;
                     k = (p >> storageSize) - (t >> storageSize);
                 }
-                t = nu.s[j+n] - k;
-                nu.s[j+n] = t;
+                t = nu.s[j+divisorLength] - k;
+                nu.s[j+divisorLength] = t;
 
-                q->s[j] = qhat;
+                qotient.s[j] = qhat;
                 if (t < 0) {
-                    q->s[j]--;
+                    qotient.s[j]--;
                     k = 0;
-                    for (unsigned i = 0; i < n; i++) {
+                    for (unsigned i = 0; i < divisorLength; i++) {
                         t = nu.s[i+j] + nv.s[i] + k;
                         nu.s[i+j] = t;
                         k = t >> storageSize;
                     }
-                    nu.s[j+n] += k;
+                    nu.s[j+divisorLength] += k;
                 }
             }
 
             if (negate_result) {
                 if (nu) {
-                    ++(*q);
+                    ++qotient;
                 }
-                q->negate();
+                qotient.negate();
             }
-            if (!r) {
+            if (!remainder) {
                 return;
             }
             nu >>= s;
+            *remainder = nu;
             if (negate_result && nu) {
-                if (negate_remainder) {
-                    nu += MultiwordInteger<size+1, storageType>(o_);
-                } else {
-                    nu -= MultiwordInteger<size+1, storageType>(o_);
-                    nu.negate();
+                *remainder -= MultiwordInteger<size+1, storageType>(divisor);
+                if (!negate_remainder) {
+                    remainder->negate();
                 }
             } else if (negate_remainder) {
-                nu.negate();
+                remainder->negate();
             }
-            *r = nu;
         }
     }
 
+protected:
+    template<unsigned divisorSize>
+    constexpr
+    void
+    unsignedQuotrem(MultiwordInteger<size,        storageType> dividend,
+                    MultiwordInteger<divisorSize, storageType> &divisor,
+                    MultiwordInteger<size,        storageType> &quotient,
+                    unsigned dividendSize) const {
+        storageType k = 0;
+        bigType b = ((bigType)1)<<storageSize;
+        while (dividendSize-- > 0) {
+            bigType t = b*k;
+            t += dividend.s[dividendSize];
+            quotient.s[dividendSize] = t / divisor.s[0];
+            k = t - quotient.s[dividendSize] * divisor.s[0];
+        }
+
+        divisor = k;
+    }
+
+public:
     constexpr
     void
     negate() {
@@ -941,7 +946,7 @@ operator% (MultiwordInteger<leftSize, storageType> left,
            MultiwordInteger<rightSize, storageType> const &right) {
     MultiwordInteger<leftSize, storageType> q;
     MultiwordInteger<rightSize, storageType> r;
-    left.quotrem(right, &q, &r);
+    left.quotrem(right, q, &r);
     return r; }
 
 template<unsigned size, typename storageType = uint32_t>
