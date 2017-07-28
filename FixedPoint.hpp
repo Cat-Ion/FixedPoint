@@ -91,7 +91,7 @@ public:
     constexpr
     MultiwordInteger(int64_t v) {
         unsigned i = 0;
-        std::make_unsigned_t<int64_t> uv = v;
+        typename std::make_unsigned<int64_t>::type uv = v;
         while (uv && i < size) {
             s[i] = uv & ((1UL<<storageSize) - 1);
             uv >>= storageSize;
