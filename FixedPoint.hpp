@@ -136,9 +136,12 @@ public:
                 s[i] = 0;
                 unsigned start = shiftNum;
                 if (i*shiftNum + start > otherSize) {
-                    start = otherSize;
+                    start = otherSize - i*shiftNum;
+                    if (o.is_negative()) {
+                        s[i] |= (~static_cast<storageType>(0)) << (start * shiftWidth);
+                    }
                 }
-                for (unsigned j = shiftNum; j-- > 0; ) {
+                for (unsigned j = start; j-- > 0; ) {
                     s[i] |= o.s[i*shiftNum + j] << (shiftWidth * j);
                 }
             }
@@ -339,7 +342,7 @@ public:
                     s[i] = ~static_cast<storageType>(0);
                 }
             } else {
-                *this = int64_t(0);
+                *this = storageType(0);
             }
             return *this;
         }
@@ -457,7 +460,7 @@ public:
         if (m == 0) {
             *q = int64_t(0);
             if (r) {
-                *r = *q;
+                *r = *this;
             }
             return;
         }
