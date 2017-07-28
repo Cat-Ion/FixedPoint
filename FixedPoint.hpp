@@ -549,8 +549,8 @@ public:
                     }
                 } while (retry);
 
-                std::make_signed<bigType>::type k = 0;
-                std::make_signed<bigType>::type t = 0;
+                typename std::make_signed<bigType>::type k = 0;
+                typename std::make_signed<bigType>::type t = 0;
                 for (unsigned i = 0; i < n; i++) {
                     p = qhat * nv.s[i];
                     t = nu.s[i+j] - k - (p & ((1UL<<storageSize)-1));
