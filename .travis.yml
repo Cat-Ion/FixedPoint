@@ -27,6 +27,7 @@ matrix:
       env:
         - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
       after_success:
+        - make coverage
         - coveralls 
 
 before_install:
@@ -36,7 +37,6 @@ before_install:
 
 script:
   - make tests
-  - make coverage
 
 notifications:
   irc:
