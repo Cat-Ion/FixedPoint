@@ -3,10 +3,6 @@ language: cpp
 
 sudo: false
 
-compiler:
-  - gcc
-  - clang
-
 matrix:
   include:
     # works on Precise and Trusty
