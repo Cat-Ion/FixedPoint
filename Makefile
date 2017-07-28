@@ -1,5 +1,5 @@
-CXXFLAGS += -Wall -pedantic -std=c++17
-LDFLAGS = -lcpptest
+CXXFLAGS += -Wall -pedantic -std=c++17 -g
+LDFLAGS = -lUnitTest++
 
 all: tests
 
