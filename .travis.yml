@@ -29,9 +29,15 @@ matrix:
 
 before_install:
     - eval "${MATRIX_EVAL}"
+    - pip install --user cpp-coveralls
     - export UNITTEST_CPP_INCLUDE=/usr/include/unittest++
+
 script:
   - make tests
+  - make coverage
+
+after_success:
+  - coveralls 
 
 notifications:
   irc:
