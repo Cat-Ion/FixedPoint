@@ -1,5 +1,8 @@
-CXXFLAGS += -Wall -pedantic -std=c++14 -g
+UNITTEST_CPP_INCLUDE ?= /usr/include/UnitTest++
+
+CXXFLAGS += -Wall -pedantic -std=c++14 -g -I$(UNITTEST_CPP_INCLUDE)
 LDFLAGS = -lUnitTest++
+
 
 all: tests
 
@@ -9,7 +12,6 @@ FixedPointTests: FixedPointTests.o
 FixedPointTests.o: FixedPointTests.cpp FixedPoint.hpp
 
 tests: FixedPointTests
-	ls /usr/include
 	./FixedPointTests
 
 .PHONY: clean tests
