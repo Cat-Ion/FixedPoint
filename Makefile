@@ -1,4 +1,4 @@
-CXXFLAGS += -Wall -pedantic -std=c++17 -g
+CXXFLAGS += -Wall -pedantic -std=c++14 -g
 LDFLAGS = -lUnitTest++
 
 all: tests
