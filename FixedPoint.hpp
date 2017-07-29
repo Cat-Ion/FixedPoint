@@ -453,7 +453,9 @@ public:
         size_t divisor_nlz = divisor.is_negative() ? ((-divisor).leading_zeros()) : divisor.leading_zeros();
 
         divisor_length -= divisor_nlz / storageSize;
-        divisor_nlz %= storageSize;
+        if (otherSize > 1) {
+            divisor_nlz %= storageSize;
+        }
         dividend_length -= this->leading_zeros()/storageSize;
 
         if (dividend_length == 0) {
