@@ -22,7 +22,7 @@ template<> unsigned nlz(uint32_t x) {
     if (x <= 0x00FFFFFF) { r +=  8; x <<=  8; }
     if (x <= 0x0FFFFFFF) { r +=  4; x <<=  4; }
     if (x <= 0x3FFFFFFF) { r +=  2; x <<=  2; }
-    if (x <= 0x7FFFFFFF) { r +=  1; x <<=  1; }
+    if (x <= 0x7FFFFFFF) { r +=  1; }
     return r;
 }
 template<> unsigned nlz(uint16_t x) {
@@ -30,14 +30,14 @@ template<> unsigned nlz(uint16_t x) {
     if (x <= 0x00FF) { r +=  8; x <<=  8; }
     if (x <= 0x0FFF) { r +=  4; x <<=  4; }
     if (x <= 0x3FFF) { r +=  2; x <<=  2; }
-    if (x <= 0x7FFF) { r +=  1; x <<=  1; }
+    if (x <= 0x7FFF) { r +=  1; }
     return r;
 }
 template<> unsigned nlz(uint8_t x) {
     unsigned r = 0;
     if (x <= 0x0F) { r +=  4; x <<=  4; }
     if (x <= 0x3F) { r +=  2; x <<=  2; }
-    if (x <= 0x7F) { r +=  1; x <<=  1; }
+    if (x <= 0x7F) { r +=  1; }
     return r;
 }
 
@@ -453,7 +453,9 @@ public:
         size_t divisor_nlz = divisor.is_negative() ? ((-divisor).leading_zeros()) : divisor.leading_zeros();
 
         divisor_length -= divisor_nlz / storageSize;
-        divisor_nlz %= storageSize;
+        if (otherSize > 1) {
+            divisor_nlz %= storageSize;
+        }
         dividend_length -= this->leading_zeros()/storageSize;
 
         if (dividend_length == 0) {
