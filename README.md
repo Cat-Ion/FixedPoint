@@ -5,25 +5,24 @@ To use:
 
     #include <FixedPoint.hpp>
 
-Then declare some variables with an integer width, a (minimum) fractional
-width, and optionally an unsigned storage type, which defaults to 32-bit ints.
+Then declare some variables with an integer width, a fractional width, and
+optionally an unsigned storage type, which defaults to 32-bit ints. The integer
+and fractional width need to add up to one less than a multiple of the size of
+the storage type.
 
 The variables
 
-    FixedPoint<5, 32> a;
-    FixedPoint<5, 35, uint32_t> b;
-    FixedPoint<5, 58, uint32_t> c;
+    FixedPoint<5, 26> a;
+    FixedPoint<5, 26, uint32_t> b;
+    FixedPoint<5, 26, uint16_t> c;
 
 have the same integer precision of 5 bits, and the same fractional precision
-of
-
-    32 * ceil((5+35)/32) - 5 - 1 = 58
-
-bits - the minimal storage size is rounded up to a multiple of the size of the
-storage type; then the bits needed for the integral part and sign bit are subtracted.
+of 26 bits. ~a~ and ~b~ both use 32-bit numbers for storage, while ~c~ uses 16-bit
+numbers.
 
 Arithmetics work as expected:
 
+    FixedPoint<5, 26> a, b, c;
     a = 5.;
     b = 6.;
 
