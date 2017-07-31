@@ -709,8 +709,8 @@ public:
     }
 
     // Return true if bit at position is set, starting from the LSB.
-    bool bit(size_t position) const {
-        size_t word = position % storageSize;
+    constexpr bool bit(size_t position) const {
+        size_t word = position / storageSize;
         position %= storageSize;
         return s[word] & (1<<position);
     }
