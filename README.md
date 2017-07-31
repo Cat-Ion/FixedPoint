@@ -17,7 +17,7 @@ The variables
     FixedPoint<5, 26, uint16_t> c;
 
 have the same integer precision of 5 bits, and the same fractional precision
-of 26 bits. ~a~ and ~b~ both use 32-bit numbers for storage, while ~c~ uses 16-bit
+of 26 bits. `a` and `b` both use 32-bit numbers for storage, while `c` uses 16-bit
 numbers.
 
 Arithmetics work as expected:
