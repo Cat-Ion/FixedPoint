@@ -448,9 +448,9 @@ SUITE(MultiwordInteger) {
 
 SUITE(FixedPoint) {
   TEST(construction) {
-    FixedPoint<3, 15, uint16_t> a(5.), b;
-    FixedPoint<5, 4, uint32_t> c;
-    FixedPoint<5, 18, uint32_t> d;
+    FixedPoint<3, 28, uint16_t> a(5.), b;
+    FixedPoint<5, 26, uint32_t> c;
+    FixedPoint<5, 26, uint32_t> d;
 
     FixedPoint<31, 0>::StorageType s(int64_t(1));
 
@@ -475,16 +475,16 @@ SUITE(FixedPoint) {
     CHECK(double(f) == 0.5);
 
     a = 100.;
-    CHECK(double(a) == (FixedPoint<3, 15, uint16_t>::maxVal<double>()));
+    CHECK(double(a) == (FixedPoint<3, 28, uint16_t>::maxVal<double>()));
 
     a = -100.;
-    CHECK(double(a) == (FixedPoint<3, 15, uint16_t>::minVal<double>()));
+    CHECK(double(a) == (FixedPoint<3, 28, uint16_t>::minVal<double>()));
 
     a = int(100);
-    CHECK(double(a) == (FixedPoint<3, 15, uint16_t>::maxVal<double>()));
+    CHECK(double(a) == (FixedPoint<3, 28, uint16_t>::maxVal<double>()));
 
     a = int(-100);
-    CHECK(double(a) == (FixedPoint<3, 15, uint16_t>::minVal<double>()));
+    CHECK(double(a) == (FixedPoint<3, 28, uint16_t>::minVal<double>()));
   }
 
   TEST(limits) {
@@ -598,9 +598,9 @@ SUITE(FixedPoint) {
   }
 
   TEST(comparison) {
-    test_comparison_perform<FixedPoint<3, 4, uint32_t>>();
-    test_comparison_perform<FixedPoint<3, 4, uint16_t>>();
-    test_comparison_perform<FixedPoint<3, 4, uint8_t>>();
+    test_comparison_perform<FixedPoint<3, 28, uint32_t>>();
+    test_comparison_perform<FixedPoint<3, 28, uint16_t>>();
+    test_comparison_perform<FixedPoint<3, 28, uint8_t>>();
   }
 
   template<typename T, int bits>
@@ -622,9 +622,9 @@ SUITE(FixedPoint) {
   }
 
   TEST(atan2) {
-    test_atan2_perform<FixedPoint<4,80,uint32_t>, 32>();
-    test_atan2_perform<FixedPoint<4,80,uint16_t>, 16>();
-    test_atan2_perform<FixedPoint<4,80,uint8_t>, 8>();
+    test_atan2_perform<FixedPoint<4,91,uint32_t>, 32>();
+    test_atan2_perform<FixedPoint<4,91,uint16_t>, 16>();
+    test_atan2_perform<FixedPoint<4,91,uint8_t>, 8>();
   }
 
   TEST(abs) {

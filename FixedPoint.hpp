@@ -294,7 +294,7 @@ public:
 
     constexpr
     MultiwordInteger<size, storageType>&
-    operator<<=(size_t n) {
+    operator<<=(unsigned n) {
         size_t w = n / storageSize;
         n %= storageSize;
 
@@ -328,7 +328,7 @@ public:
 
     constexpr
     MultiwordInteger<size, storageType>&
-    operator>>=(size_t n) {
+    operator>>=(unsigned n) {
         size_t w = n / storageSize;
         n %= storageSize;
 
@@ -709,14 +709,14 @@ public:
     }
 };
 
-template<int integerWidth, unsigned minimumFractionalWidth, typename backingStorageType = uint32_t>
+template<int integerWidth, unsigned _fractionalWidth, typename backingStorageType = uint32_t>
 class FixedPoint
 {
+    static_assert((integerWidth + _fractionalWidth + 1) % (sizeof(backingStorageType) * 8) == 0, "Integer and fractional width do not match size of storage type.");
 public:
-    typedef MultiwordInteger<(integerWidth+minimumFractionalWidth+sizeof(backingStorageType)*8-1)/(sizeof(backingStorageType)*8), backingStorageType> StorageType;
+    typedef MultiwordInteger<(integerWidth+_fractionalWidth+1)/(sizeof(backingStorageType)*8), backingStorageType> StorageType;
 protected:
-    typedef FixedPoint<integerWidth,minimumFractionalWidth,backingStorageType> FP;
-    static constexpr size_t fw = StorageType::storageSize * StorageType::numWords - integerWidth - 1;
+    typedef FixedPoint<integerWidth,_fractionalWidth,backingStorageType> FP;
 public:
     StorageType v;
 
@@ -733,7 +733,7 @@ public:
         } else if (v < minVal<double>()) {
             v = minVal<double>();
         }
-        this->v = v * pow(2., (double)fw);
+        this->v = v * pow(2., (double)_fractionalWidth);
     }
 
     constexpr
@@ -745,7 +745,7 @@ public:
             this->v = StorageType::minVal();
         } else {
             this->v = (int64_t)v;
-            this->v <<= fw;
+            this->v <<= _fractionalWidth;
         }
     }
 
@@ -755,23 +755,22 @@ public:
     constexpr
     FixedPoint(StorageType const &s) : v(s) {}
 
-    template<int oiw, unsigned omfw, typename otherStorageType>
+    template<int oiw, unsigned ofw, typename otherStorageType>
     constexpr
-    FixedPoint(FixedPoint<oiw,omfw,otherStorageType> const &o) {
-        unsigned ofw = FixedPoint<oiw, omfw, otherStorageType>::fractionalWidth();
-        if (ofw > fw) {
-            typename FixedPoint<oiw, omfw, otherStorageType>::StorageType ov = o.v>>(ofw-fw);
+    FixedPoint(FixedPoint<oiw,ofw,otherStorageType> const &o) {
+        if (ofw > _fractionalWidth) {
+            typename FixedPoint<oiw, ofw, otherStorageType>::StorageType ov = o.v >> (ofw-_fractionalWidth);
             this->v = ov;
         } else {
             this->v = o.v;
-            this->v <<= (fw - ofw);
+            this->v <<= (_fractionalWidth - ofw);
         }
     }
 
     constexpr static
     unsigned
     fractionalWidth() {
-        return fw;
+        return _fractionalWidth;
     }
 
     template<typename T>
@@ -802,7 +801,7 @@ public:
     operator double() const
     {
         double dv = double(v);
-        double p2 = pow(2., -(double) fw);
+        double p2 = pow(2., -(double) _fractionalWidth);
         double r = p2 * dv;
         return r;
     }
@@ -847,7 +846,7 @@ public:
         assert((double)*this * (double)o >= minVal<double>());
         MultiwordInteger<StorageType::numWords*2, backingStorageType> nv;
         nv = this->v * o.v;
-        this->v = nv >> fw;
+        this->v = nv >> _fractionalWidth;
         return *this;
     }
 
@@ -865,8 +864,8 @@ public:
     operator/=(FP const &o) {
         assert((double)*this / (double)o <= maxVal<double>());
         assert((double)*this / (double)o >= minVal<double>());
-        MultiwordInteger<StorageType::numWords+(fw+StorageType::storageSize-1)/StorageType::storageSize, backingStorageType> nv(this->v);
-        nv <<= fw;
+        MultiwordInteger<StorageType::numWords+(_fractionalWidth+StorageType::storageSize-1)/StorageType::storageSize, backingStorageType> nv(this->v);
+        nv <<= _fractionalWidth;
         nv /= o.v;
         v = nv;
         return *this;
@@ -978,11 +977,11 @@ operator!=(MultiwordInteger<size, storageType> const &left,
 
 template<unsigned size, typename storageType = uint32_t>
 constexpr MultiwordInteger<size, storageType>
-operator>>(MultiwordInteger<size, storageType> left, size_t right) { return left >>= right; }
+operator>>(MultiwordInteger<size, storageType> left, unsigned right) { return left >>= right; }
 
 template<unsigned size, typename storageType = uint32_t>
 constexpr MultiwordInteger<size, storageType>
-operator<<(MultiwordInteger<size, storageType> left, size_t right) { return left <<= right; }
+operator<<(MultiwordInteger<size, storageType> left, unsigned right) { return left <<= right; }
 
 template<int integerWidth, unsigned minimumFractionalWidth, typename backingStorageType = uint32_t>
 constexpr FixedPoint<integerWidth, minimumFractionalWidth, backingStorageType>
