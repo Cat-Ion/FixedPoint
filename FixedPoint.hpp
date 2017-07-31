@@ -854,7 +854,7 @@ public:
         MultiwordInteger<StorageType::numWords*2, backingStorageType> nv;
         nv = this->v * o.v;
         this->v = nv >> _fractionalWidth;
-        if (nv.bit(_fractionalWidth - 1)) {
+        if (_fractionalWidth > 0 && nv.bit(_fractionalWidth - 1)) {
             ++this->v;
         }
         return *this;
