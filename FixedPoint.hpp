@@ -707,6 +707,13 @@ public:
             s[i] |= (~static_cast<storageType>(0)) << (storageSize - num);
         }
     }
+
+    // Return true if bit at position is set, starting from the LSB.
+    bool bit(size_t position) const {
+        size_t word = position % storageSize;
+        position %= storageSize;
+        return s[word] & (1<<position);
+    }
 };
 
 template<int integerWidth, unsigned _fractionalWidth, typename backingStorageType = uint32_t>
@@ -847,6 +854,9 @@ public:
         MultiwordInteger<StorageType::numWords*2, backingStorageType> nv;
         nv = this->v * o.v;
         this->v = nv >> _fractionalWidth;
+        if (nv.bit(_fractionalWidth - 1)) {
+            ++this->v;
+        }
         return *this;
     }
 
