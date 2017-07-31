@@ -23,11 +23,11 @@ SUITE(MultiwordInteger) {
 
     // Positive values
     a = uint16_t(5);
-    CHECK(a.operator double() == 5.);
+    CHECK_EQUAL(double(a), 5.);
 
     // Negative values get sign-extended
     a = uint16_t(-5);
-    CHECK(a.operator double() == -5.);
+    CHECK_EQUAL(double(a), -5.);
   }
 
   TEST(double_construction) {
@@ -54,12 +54,12 @@ SUITE(MultiwordInteger) {
     b = int64_t(0x7FFFFFFF);
     a = b;
     // Assignment from a smaller type should be exact
-    CHECK(double(a) == double(b));
+    CHECK_EQUAL(double(a), double(b));
 
     // Assignment from a type that doesn't fill the storage completely
     MultiwordInteger<3, uint8_t> c(int64_t(0xC0FFEE));
     a = c;
-    CHECK(double(a) == double(c));
+    CHECK_EQUAL(double(a), double(c));
   }
 
   TEST(limits) {
@@ -67,130 +67,130 @@ SUITE(MultiwordInteger) {
     MultiwordInteger<2, uint16_t> minv(MultiwordInteger<2, uint16_t>::minVal());
     MultiwordInteger<2, uint16_t> a(int64_t(0x80000000));
 
-    CHECK(a == minv);
+    CHECK_EQUAL(double(a), double(minv));
 
     a=int64_t(0x7FFFFFFF);
-    CHECK(a == maxv);
+    CHECK_EQUAL(double(a), double(maxv));
   }
 
   TEST(addition) {
     MultiwordInteger<2, uint16_t> a(0.), b(1.), c(-1.), d(2.);
 
     // Adding zero
-    CHECK(a+b == b);
+    CHECK_EQUAL(double(a+b), double(b));
 
     // Basic addition
-    CHECK(b+b == d);
+    CHECK_EQUAL(double(b+b), double(d));
 
     // Adding with overflow
-    CHECK(a+b+c == a);
+    CHECK_EQUAL(double(a+b+c), double(a));
 
     // Commutativity
-    CHECK(b+d == d+b);
+    CHECK_EQUAL(double(b+d), double(d+b));
   }
 
   TEST(subtraction) {
     MultiwordInteger<2, uint16_t> a(0.), b(1.), c(-1.), d(3.);
 
     // Subtracting from zero should yield negative
-    CHECK(a-b == c);
+    CHECK_EQUAL(double(a-b), double(c));
 
     // Subtracting itself should yield zero
-    CHECK(b-b == a);
+    CHECK_EQUAL(double(b-b), double(a));
 
     // Basic subtraction
-    CHECK(d-b-b == b);
+    CHECK_EQUAL(double(d-b-b), double(b));
 
     // Anticommutativity
-    CHECK(a-b == a-(b-a));
+    CHECK_EQUAL(double(a-b), double(a-(b-a)));
   }
 
   TEST(negation) {
     MultiwordInteger<2, uint16_t> a(1.), b(-1.), c(-1.);
 
-    CHECK(a == -b);
+    CHECK_EQUAL(double(a), double(-b));
 
     c.negate();
-    CHECK(a == c);
+    CHECK_EQUAL(double(a), double(c));
   }
 
   TEST(multiplication) {
     MultiwordInteger<2, uint16_t> a(0.), b(1.), c(-1.), d(2.);
 
     // Multiplying with zero yields zero
-    CHECK(a*d == a);
+    CHECK_EQUAL(double(a*d), double(a));
 
     // Multiplying with 1 yields the other operand
-    CHECK(b*d == d);
+    CHECK_EQUAL(double(b*d), double(d));
 
     // Multiplying with -1 yields -d
-    CHECK(d*c == -d);
+    CHECK_EQUAL(double(d*c), double(-d));
 
     // Commutativity
-    CHECK(c*d == d*c);
+    CHECK_EQUAL(double(c*d), double(d*c));
 
     // Results out of range of the smaller type should still work in the resulting type
     b = double(0x10000);
     MultiwordInteger<4, uint16_t> e(double(0x100000000));
-    CHECK(b*b == e);
+    CHECK_EQUAL(double(b*b), double(e));
 
     // But overflow when assigned to a smaller type
     MultiwordInteger<2, uint16_t> f(b);
     f *= b;
-    CHECK(f == a);
+    CHECK_EQUAL(double(f), double(a));
   }
 
   TEST(division) {
     MultiwordInteger<2, uint16_t> a(1.), b(2.), c, d, zero(0.), unity(1.);
 
     // Dividing by larger values yields zero for positive values, -1 for negative values
-    CHECK(a/b == zero);
-    CHECK(a/(-b) == -unity);
+    CHECK_EQUAL(double(a/b), double(zero));
+    CHECK_EQUAL(double(a/(-b)), double(-unity));
 
     // Dividing by 1 yields the numerator
-    CHECK(b/unity == b);
+    CHECK_EQUAL(double(b/unity), double(b));
 
     // x/x == 1
-    CHECK(b/b == unity);
+    CHECK_EQUAL(double(b/b), double(unity));
 
     // Test again, for larger values
     a = 65536.*5;
     b = 65536.;
-    CHECK(a/a == unity);
+    CHECK_EQUAL(double(a/a), double(unity));
 
     // If there is no remainder, a/b == c <-> a/c == b
     c = 5.;
-    CHECK(a/b == c);
-    CHECK(a/c == b);
-    CHECK((-a)/b == -c);
-    CHECK(a/(-b) == -c);
-    CHECK((-a)/(-b) == c);
+    CHECK_EQUAL(double(a/b), double(c));
+    CHECK_EQUAL(double(a/c), double(b));
+    CHECK_EQUAL(double((-a)/b), double(-c));
+    CHECK_EQUAL(double(a/(-b)), double(-c));
+    CHECK_EQUAL(double((-a)/(-b)), double(c));
 
     // Test with remainder
     a = 5.;
     b = 2.;
     c = 3.;
-    CHECK(a/-b == -c);
-    CHECK(a/-c == -b);
-    CHECK(-a/b == -c);
-    CHECK(-a/c == -b);
+    CHECK_EQUAL(double(a/-b), double(-c));
+    CHECK_EQUAL(double(a/-c), double(-b));
+    CHECK_EQUAL(double(-a/b), double(-c));
+    CHECK_EQUAL(double(-a/c), double(-b));
 
     // And for large values
     a = 5*65536.;
     b = 3*65536.;
     c = 1.;
     d = 2.;
-    CHECK(a/-b == -d);
-    CHECK((-a)/b == -d);
-    CHECK((-a)/(-b) == c);
+    CHECK_EQUAL(double(a/-b), double(-d));
+    CHECK_EQUAL(double((-a)/b), double(-d));
+    CHECK_EQUAL(double((-a)/(-b)), double(c));
 
     // Division by zero
     a = 1.;
     b = 0.;
     c = MultiwordInteger<2, uint16_t>::maxVal();
     d = MultiwordInteger<2, uint16_t>::minVal();
-    CHECK(a/b == c);
-    CHECK((-a)/b == d);
+    CHECK_EQUAL(double(a/b), double(c));
+    CHECK_EQUAL(double((-a)/b), double(d));
   }
 
   TEST(modulo) {
@@ -202,23 +202,23 @@ SUITE(MultiwordInteger) {
     c = 0.;
     d = a/b * b;
     e = a%b;
-    CHECK(e == c);
-    CHECK(d + e == a);
+    CHECK_EQUAL(double(e), double(c));
+    CHECK_EQUAL(double(d + e), double(a));
 
     d = a / (-b) * (-b);
     e = a % (-b);
-    CHECK(e == c);
-    CHECK(d + e == a);
+    CHECK_EQUAL(double(e), double(c));
+    CHECK_EQUAL(double(d + e), double(a));
 
     d = (-a) / b * b;
     e = (-a) % b;
-    CHECK(e == c);
-    CHECK(d + e == -a);
+    CHECK_EQUAL(double(e), double(c));
+    CHECK_EQUAL(double(d + e), double(-a));
 
     d = (-a) / (-b) * (-b);
     e = (-a) % (-b);
-    CHECK(e == -c);
-    CHECK(d + e == -a);
+    CHECK_EQUAL(double(e), double(-c));
+    CHECK_EQUAL(double(d + e), double(-a));
 
     // With remainder
     a = 7.;
@@ -227,24 +227,24 @@ SUITE(MultiwordInteger) {
 
     d = a/b*b;
     e = a%b;
-    CHECK(e == c);
-    CHECK(d + e == a);
+    CHECK_EQUAL(double(e), double(c));
+    CHECK_EQUAL(double(d + e), double(a));
 
     d = (-a) / (-b) * (-b);
     e = (-a) % (-b);
-    CHECK(e == -c);
-    CHECK(d + e == (-a));
+    CHECK_EQUAL(double(e), double(-c));
+    CHECK_EQUAL(double(d + e), double((-a)));
 
     c = 2.;
     d = a/(-b)*(-b);
     e = a%(-b);
-    CHECK(e == -c);
-    CHECK(d + e == a);
+    CHECK_EQUAL(double(e), double(-c));
+    CHECK_EQUAL(double(d + e), double(a));
 
     d = (-a)/b*b;
     e = (-a)%b;
-    CHECK(e == c);
-    CHECK(d + e == -a);
+    CHECK_EQUAL(double(e), double(c));
+    CHECK_EQUAL(double(d + e), double(-a));
 
     // Large divisor
     a = 65536.*2 - 1;
@@ -253,38 +253,38 @@ SUITE(MultiwordInteger) {
     c = 65535.;
     d = a/b*b;
     e = a%b;
-    CHECK(e == c);
-    CHECK(d + e == a);
+    CHECK_EQUAL(double(e), double(c));
+    CHECK_EQUAL(double(d + e), double(a));
 
     d = (-a) / (-b) * (-b);
     e = (-a) % (-b);
-    CHECK(e == -c);
-    CHECK(d + e == -a);
+    CHECK_EQUAL(double(e), double(-c));
+    CHECK_EQUAL(double(d + e), double(-a));
 
     c = 1.;
     d = (-a) / b * b;
     e = (-a) % b;
-    CHECK(e == c);
-    CHECK(d + e == -a);
+    CHECK_EQUAL(double(e), double(c));
+    CHECK_EQUAL(double(d + e), double(-a));
 
     d = a / (-b) * (-b);
     e = a % (-b);
-    CHECK(e == -c);
-    CHECK(d + e == a);
+    CHECK_EQUAL(double(e), double(-c));
+    CHECK_EQUAL(double(d + e), double(a));
 
     // Division of zero returns 0
     a = 0.;
     b = 1.;
     d = a / b * b;
     e = a % b;
-    CHECK(d == a);
-    CHECK(e == a);
+    CHECK_EQUAL(double(d), double(a));
+    CHECK_EQUAL(double(e), double(a));
 
     // Division by zero returns 0
     a = 1.;
     b = 0.;
     e = a % b;
-    CHECK(e == b);
+    CHECK_EQUAL(double(e), double(b));
   }
 
   TEST(comparison) {
@@ -301,7 +301,7 @@ SUITE(MultiwordInteger) {
     CHECK(!(a < a));
 
     CHECK(a != b);
-    CHECK(a == a);
+    CHECK_EQUAL(double(a), double(a));
 
     CHECK(!(a == b));
     CHECK(!(a != a));
@@ -315,72 +315,72 @@ SUITE(MultiwordInteger) {
 
     // Test shifting all bits out, when positive
     a >>= 17;
-    CHECK(a == b);
+    CHECK_EQUAL(double(a), double(b));
 
     // Test shifting 0
     a <<= 1;
-    CHECK(a == b);
+    CHECK_EQUAL(double(a), double(b));
 
     // Huge shift
     a = 1.;
     a <<= 100;
-    CHECK(a == b);
+    CHECK_EQUAL(double(a), double(b));
 
     a = 1.;
     // Test normal shift
     a <<= 1;
     b = 2.;
-    CHECK(a == b);
+    CHECK_EQUAL(double(a), double(b));
 
     // Shift over boundary
     a <<= 17;
     b = 65536.*4;
-    CHECK(a == b);
+    CHECK_EQUAL(double(a), double(b));
 
     a <<= 12;
 
     // Test right shift
     a >>= 1;
     b = 536870912.;
-    CHECK(a == b);
+    CHECK_EQUAL(double(a), double(b));
 
     // Test large right shift
     a >>= 29;
     b = 1.;
-    CHECK(a == b);
+    CHECK_EQUAL(double(a), double(b));
 
     // Result should be negative
     a <<= 31;
     b = MultiwordInteger<2, uint16_t>::minVal();
-    CHECK(a == b);
+    CHECK_EQUAL(double(a), double(b));
 
     // Result should be sign extended, and negative
     a >>= 30;
     b = -2.;
-    CHECK(a == b);
+    CHECK_EQUAL(double(a), double(b));
 
     // Too large shift should still sign extend
     a >>= 300;
     b = -1.;
-    CHECK(a == b);
+    CHECK_EQUAL(double(a), double(b));
 
     // Huge shift for positive values
     a = 555.;
     a >>= 300;
     b = 0.;
-    CHECK(a == b);
+    CHECK_EQUAL(double(a), double(b));
 
     // Shift by storageSize
     a = 65536.;
     a >>= 16;
     b = 1.;
-    CHECK(a == b);
+    CHECK_EQUAL(double(a), double(b));
 
     // Shift by storageSize, negative number
     a = -65536.;
     a >>= 16;
     b = -1.;
-    CHECK(a == b);
+    CHECK_EQUAL(double(a), double(b));
   }
 
   TEST(conversions) {
@@ -401,41 +401,41 @@ SUITE(MultiwordInteger) {
     // Small value conversion
     a = 5.;
     b = a; c = a; d = a; e = a; f = a; g = a; h = a; i = a; j = a;
-    CHECK(double(b) == double(a));
-    CHECK(double(c) == double(a));
-    CHECK(double(d) == double(a));
-    CHECK(double(e) == double(a));
-    CHECK(double(f) == double(a));
-    CHECK(double(g) == double(a));
-    CHECK(double(h) == double(a));
-    CHECK(double(i) == double(a));
-    CHECK(double(j) == double(a));
+    CHECK_EQUAL(double(double(b)), double(double(a)));
+    CHECK_EQUAL(double(double(c)), double(double(a)));
+    CHECK_EQUAL(double(double(d)), double(double(a)));
+    CHECK_EQUAL(double(double(e)), double(double(a)));
+    CHECK_EQUAL(double(double(f)), double(double(a)));
+    CHECK_EQUAL(double(double(g)), double(double(a)));
+    CHECK_EQUAL(double(double(h)), double(double(a)));
+    CHECK_EQUAL(double(double(i)), double(double(a)));
+    CHECK_EQUAL(double(double(j)), double(double(a)));
 
     // Larger value conversion
     a = 65536.;
     b = a; c = a; d = a; e = a; f = a; g = a; h = a; i = a; j = a;
-    CHECK(double(b) == double(a));
-    CHECK(double(c) == double(a));
-    CHECK(double(d) == double(a));
-    CHECK(double(e) == double(a));
-    CHECK(double(f) == double(a));
-    CHECK(double(g) == double(a));
-    CHECK(double(h) == double(a));
-    CHECK(double(i) == double(a));
-    CHECK(double(j) == double(a));
+    CHECK_EQUAL(double(double(b)), double(double(a)));
+    CHECK_EQUAL(double(double(c)), double(double(a)));
+    CHECK_EQUAL(double(double(d)), double(double(a)));
+    CHECK_EQUAL(double(double(e)), double(double(a)));
+    CHECK_EQUAL(double(double(f)), double(double(a)));
+    CHECK_EQUAL(double(double(g)), double(double(a)));
+    CHECK_EQUAL(double(double(h)), double(double(a)));
+    CHECK_EQUAL(double(double(i)), double(double(a)));
+    CHECK_EQUAL(double(double(j)), double(double(a)));
 
     // Negative conversion
     a = -1.;
     b = a; c = a; d = a; e = a; f = a; g = a; h = a; i = a; j = a;
-    CHECK(double(b) == double(a));
-    CHECK(double(c) == double(a));
-    CHECK(double(d) == double(a));
-    CHECK(double(e) == double(a));
-    CHECK(double(f) == double(a));
-    CHECK(double(g) == double(a));
-    CHECK(double(h) == double(a));
-    CHECK(double(i) == double(a));
-    CHECK(double(j) == double(a));
+    CHECK_EQUAL(double(double(b)), double(double(a)));
+    CHECK_EQUAL(double(double(c)), double(double(a)));
+    CHECK_EQUAL(double(double(d)), double(double(a)));
+    CHECK_EQUAL(double(double(e)), double(double(a)));
+    CHECK_EQUAL(double(double(f)), double(double(a)));
+    CHECK_EQUAL(double(double(g)), double(double(a)));
+    CHECK_EQUAL(double(double(h)), double(double(a)));
+    CHECK_EQUAL(double(double(i)), double(double(a)));
+    CHECK_EQUAL(double(double(j)), double(double(a)));
 
     // Overflow
     a = pow(2., 32.);
@@ -454,37 +454,37 @@ SUITE(FixedPoint) {
 
     FixedPoint<31, 0>::StorageType s(int64_t(1));
 
-    CHECK(double(a) == 5.);
+    CHECK_EQUAL(double(double(a)), double(5.));
 
     a = int(5);
-    CHECK(double(a) == 5.);
+    CHECK_EQUAL(double(double(a)), double(5.));
 
     b = a;
-    CHECK(double(b) == 5.);
+    CHECK_EQUAL(double(double(b)), double(5.));
 
     c = a;
-    CHECK(double(c) == 5.);
+    CHECK_EQUAL(double(double(c)), double(5.));
 
     d = a;
-    CHECK(double(d) == 5.);
+    CHECK_EQUAL(double(double(d)), double(5.));
 
     FixedPoint<31, 0> e(s);
-    CHECK(double(e) == 1.);
+    CHECK_EQUAL(double(double(e)), double(1.));
 
     FixedPoint<30, 1> f(s);
-    CHECK(double(f) == 0.5);
+    CHECK_EQUAL(double(double(f)), double(0.5));
 
     a = 100.;
-    CHECK(double(a) == (FixedPoint<3, 28, uint16_t>::maxVal<double>()));
+    CHECK_EQUAL(double(double(a)), double((FixedPoint<3, 28, uint16_t>::maxVal<double>())));
 
     a = -100.;
-    CHECK(double(a) == (FixedPoint<3, 28, uint16_t>::minVal<double>()));
+    CHECK_EQUAL(double(double(a)), double((FixedPoint<3, 28, uint16_t>::minVal<double>())));
 
     a = int(100);
-    CHECK(double(a) == (FixedPoint<3, 28, uint16_t>::maxVal<double>()));
+    CHECK_EQUAL(double(double(a)), double((FixedPoint<3, 28, uint16_t>::maxVal<double>())));
 
     a = int(-100);
-    CHECK(double(a) == (FixedPoint<3, 28, uint16_t>::minVal<double>()));
+    CHECK_EQUAL(double(double(a)), double((FixedPoint<3, 28, uint16_t>::minVal<double>())));
   }
 
   TEST(limits) {
@@ -509,13 +509,13 @@ SUITE(FixedPoint) {
     a = 1.;
     b = pow(2., -10.);
     c = (1. + pow(2., -10));
-    CHECK((a + b) == c);
-    CHECK((b + a) == c);
+    CHECK_EQUAL(double((a + b)), double(c));
+    CHECK_EQUAL(double((b + a)), double(c));
 
     a = -1.;
     b = -2.;
     c = -3.;
-    CHECK((a+b) == c);
+    CHECK_EQUAL(double((a+b)), double(c));
   }
 
   TEST(subtraction) {
@@ -524,8 +524,8 @@ SUITE(FixedPoint) {
     a = 1.;
     b = pow(2., -10.);
     c = (1. - pow(2., -10));
-    CHECK((a - b) == c);
-    CHECK((b - a) == -c);
+    CHECK_EQUAL(double((a - b)), double(c));
+    CHECK_EQUAL(double((b - a)), double(-c));
   }
 
   TEST(multiplication) {
@@ -533,16 +533,16 @@ SUITE(FixedPoint) {
 
     a = 1.;
     b = pow(2., -10.);
-    CHECK((a * b) == b);
+    CHECK_EQUAL(double(a * b), double(b));
 
     a = 5.;
     b = 0.;
-    CHECK(a * b == b);
+    CHECK_EQUAL(double(a * b), double(b));
 
     b = 2.;
     c = 10.;
-    CHECK(a * b == c);
-    CHECK(b * a == c);
+    CHECK_EQUAL(double(a * b), double(c));
+    CHECK_EQUAL(double(b * a), double(c));
   }
 
   TEST(division) {
@@ -551,12 +551,12 @@ SUITE(FixedPoint) {
     a = 1.;
     b = pow(2., -4.);
     c = pow(2., 4.);
-    CHECK((a / b) == c);
-    CHECK((a / c) == b);
-    CHECK((a / (-b)) == -c);
-    CHECK((a / (-c)) == -b);
-    CHECK(((-a) / (-b)) == c);
-    CHECK(((-a) / (-c)) == b);
+    CHECK_EQUAL(double((a / b)), double(c));
+    CHECK_EQUAL(double((a / c)), double(b));
+    CHECK_EQUAL(double((a / (-b))), double(-c));
+    CHECK_EQUAL(double((a / (-c))), double(-b));
+    CHECK_EQUAL(double(((-a) / (-b))), double(c));
+    CHECK_EQUAL(double(((-a) / (-c))), double(b));
 
     FixedPoint<4, 91, uint32_t> y32(-0.13779029068463858), x32(-0.99046142569665119);
     FixedPoint<4, 91, uint32_t> d32 = y32/x32;
@@ -565,10 +565,10 @@ SUITE(FixedPoint) {
     FixedPoint<4, 91, uint8_t> y8(y32), x8(x32), d8(y16/x16);
     FixedPoint<4, 91> d8_32(d8), d16_32(d16);
 
-    CHECK(double(y32) == double(y16));
-    CHECK(double(x32) == double(x16));
-    CHECK(d8_32 == d32);
-    CHECK(d16_32 == d32);
+    CHECK_EQUAL(double(double(y32)), double(double(y16)));
+    CHECK_EQUAL(double(double(x32)), double(double(x16)));
+    CHECK_EQUAL(double(d8_32), double(d32));
+    CHECK_EQUAL(double(d16_32), double(d32));
   }
 
   template <typename T>
@@ -584,7 +584,7 @@ SUITE(FixedPoint) {
     CHECK(b <= a);
 
     CHECK(a != b);
-    CHECK(a == a);
+    CHECK_EQUAL(double(a), double(a));
 
     CHECK(!(a == b));
     CHECK(!(a != a));
@@ -635,26 +635,26 @@ SUITE(FixedPoint) {
     a = c = e = -1.;
     b = d = f = 1.;
 
-    CHECK(std::abs(a) == b);
-    CHECK(std::abs(c) == d);
-    CHECK(std::abs(e) == f);
-    CHECK(std::abs(b) == b);
-    CHECK(std::abs(d) == d);
-    CHECK(std::abs(f) == f);
+    CHECK_EQUAL(double(std::abs(a)), double(b));
+    CHECK_EQUAL(double(std::abs(c)), double(d));
+    CHECK_EQUAL(double(std::abs(e)), double(f));
+    CHECK_EQUAL(double(std::abs(b)), double(b));
+    CHECK_EQUAL(double(std::abs(d)), double(d));
+    CHECK_EQUAL(double(std::abs(f)), double(f));
 
     a = c = e = 0.;
-    CHECK(std::abs(a) == a);
-    CHECK(std::abs(c) == c);
-    CHECK(std::abs(e) == e);
+    CHECK_EQUAL(double(std::abs(a)), double(a));
+    CHECK_EQUAL(double(std::abs(c)), double(c));
+    CHECK_EQUAL(double(std::abs(e)), double(e));
 
     a = FixedPoint<4, 91, uint32_t>::template maxVal<FixedPoint<4, 91, uint32_t>>();
-    CHECK(std::abs(a) == a);
-    CHECK(std::abs(-a) == a);
+    CHECK_EQUAL(double(std::abs(a)), double(a));
+    CHECK_EQUAL(double(std::abs(-a)), double(a));
 
     a = FixedPoint<4, 91, uint32_t>::template minVal<FixedPoint<4, 91, uint32_t>>();
     b = FixedPoint<4, 91, uint32_t>::template maxVal<FixedPoint<4, 91, uint32_t>>();
-    CHECK(std::abs(a) == b);
-    CHECK(std::abs(b) == b);
+    CHECK_EQUAL(double(std::abs(a)), double(b));
+    CHECK_EQUAL(double(std::abs(b)), double(b));
   }
 }
 
