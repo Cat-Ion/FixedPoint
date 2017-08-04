@@ -299,7 +299,7 @@ public:
         n %= storageSize;
 
         if (w >= size) {
-            *this = int64_t(0);
+            *this = storageType(0);
             return *this;
         }
 
@@ -416,7 +416,7 @@ public:
     void
     mul(MultiwordInteger<otherSize, storageType> const &o,
         MultiwordInteger<outSize,   storageType>       *out) const {
-        *out = (int64_t) 0;
+        *out = storageType(0);
 
         unsigned limitThis = size > outSize ? outSize : size;
         for (unsigned i = 0; i < limitThis; i++) {
@@ -459,7 +459,7 @@ public:
         dividend_length -= this->leading_zeros()/storageSize;
 
         if (dividend_length == 0) {
-            qotient = int64_t(0);
+            qotient = storageType(0);
             if (remainder) {
                 *remainder = *this;
             }
@@ -476,7 +476,7 @@ public:
                 qotient = maxVal();
             }
             if (remainder) {
-                *remainder = int64_t(0);
+                *remainder = storageType(0);
             }
             return;
         }
@@ -568,7 +568,7 @@ protected:
         divisor <<= divisor_nlz;
         dividend <<= divisor_nlz;
 
-        quotient = int64_t(0);
+        quotient = storageType(0);
 
         for (int j = dividend_length - divisor_length; j >= 0; j--) {
             bigType b = bigType(1)<<storageSize;
@@ -751,7 +751,7 @@ public:
         } else if(v < -(1<<integerWidth)) {
             this->v = StorageType::minVal();
         } else {
-            this->v = (int64_t)v;
+            this->v = storageType(v);
             this->v <<= _fractionalWidth;
         }
     }
@@ -801,7 +801,7 @@ public:
     T
     smallestVal()
     {
-        return T(FP(StorageType(int64_t(1))));
+        return T(FP(StorageType(backingStorageType(1))));
     }
 
     explicit constexpr
@@ -818,14 +818,14 @@ public:
     from_int(int v)
     {
         FP r;
-        r.v = (int64_t)v;
+        r.v = int64_t(v);
         return r;
     }
 
     constexpr
     FP
     operator+=(FP const &o) {
-        StorageType z(int64_t(0));
+        StorageType z(backingStorageType(0));
         if (o.v.is_negative() && v.is_negative()) {
             StorageType d(StorageType::minVal());
             d -= v;
