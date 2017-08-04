@@ -751,7 +751,7 @@ public:
         } else if(v < -(1<<integerWidth)) {
             this->v = StorageType::minVal();
         } else {
-            this->v = storageType(v);
+            this->v = backingStorageType(v);
             this->v <<= _fractionalWidth;
         }
     }
