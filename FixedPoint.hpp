@@ -3,6 +3,7 @@
  * https://github.com/Cat-Ion/FixedPoint/blob/master/LICENSE. */
 #ifndef FIXEDPOINT_HPP
 #define FIXEDPOINT_HPP
+#define _USE_MATH_DEFINES
 #include <assert.h>
 #include <algorithm>
 #include <cmath>
