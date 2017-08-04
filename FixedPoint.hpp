@@ -637,6 +637,38 @@ public:
     }
 
     explicit constexpr
+    operator int8_t() const {
+        return s[0] & 0xFF;
+    }
+
+    explicit constexpr
+    operator int16_t() const {
+        int16_t r = 0;
+        for (unsigned i = 0, j = 0; i < 16; i += storageSize) {
+            r |= s[j++] << i;
+        }
+        return r;
+    }
+
+    explicit constexpr
+    operator int32_t() const {
+        int32_t r = 0;
+        for (unsigned i = 0, j = 0; i < 32; i += storageSize) {
+            r |= s[j++] << i;
+        }
+        return r;
+    }
+
+    explicit constexpr
+    operator int64_t() const {
+        int64_t r = 0;
+        for (unsigned i = 0, j = 0; i < 64; i += storageSize) {
+            r |= s[j++] << i;
+        }
+        return r;
+    }
+
+    explicit constexpr
     operator double() const {
         double r = 0;
         double m = pow(2., storageSize);
@@ -935,6 +967,11 @@ public:
     nabs() const {
         return v.is_positive() ? -*this : *this;
     }
+
+    explicit constexpr operator int8_t()  const { return int8_t (v>>_fractionalWidth); }
+    explicit constexpr operator int16_t() const { return int16_t(v>>_fractionalWidth); }
+    explicit constexpr operator int32_t() const { return int32_t(v>>_fractionalWidth); }
+    explicit constexpr operator int64_t() const { return int64_t(v>>_fractionalWidth); }
 };
 
 template<unsigned size, typename storageType = uint32_t>
