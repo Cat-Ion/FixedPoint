@@ -15,7 +15,7 @@ SUITE(MultiwordInteger) {
 
   TEST(msb_construction) {
     MultiwordInteger<4, uint16_t> a(int64_t(1)<<63);
-    CHECK_EQUAL(double(1L<<63), a.operator double());
+    CHECK_EQUAL(double(int64_t(1)<<63), a.operator double());
   }
 
   TEST(storagetype_construction) {

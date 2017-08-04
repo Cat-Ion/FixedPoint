@@ -3,6 +3,7 @@
  * https://github.com/Cat-Ion/FixedPoint/blob/master/LICENSE. */
 #ifndef FIXEDPOINT_HPP
 #define FIXEDPOINT_HPP
+#define _USE_MATH_DEFINES
 #include <assert.h>
 #include <algorithm>
 #include <cmath>
@@ -96,7 +97,7 @@ public:
         unsigned i = 0;
         typename std::make_unsigned<int64_t>::type uv = v;
         while (uv && i < size) {
-            s[i] = uv & ((1UL<<storageSize) - 1);
+            s[i] = uv & ((bigType(1)<<storageSize) - 1);
             uv >>= storageSize;
             i++;
         }
@@ -111,13 +112,13 @@ public:
 
     constexpr
     MultiwordInteger(double v) {
-        double sig = significand(v);
         int lg = ilogb(v);
+        double sig = ldexp(v, -lg);
         if (lg < 63) {
-            int64_t i = sig*(1UL<<lg);
+            int64_t i = sig*(int64_t(1)<<lg);
             *this = i;
         } else {
-            *this = int64_t(sig * (1UL<<62));
+            *this = int64_t(sig * (int64_t(1)<<62));
             *this <<= lg - 62;
         }
     }
@@ -299,7 +300,7 @@ public:
         n %= storageSize;
 
         if (w >= size) {
-            *this = int64_t(0);
+            *this = storageType(0);
             return *this;
         }
 
@@ -416,7 +417,7 @@ public:
     void
     mul(MultiwordInteger<otherSize, storageType> const &o,
         MultiwordInteger<outSize,   storageType>       *out) const {
-        *out = (int64_t) 0;
+        *out = storageType(0);
 
         unsigned limitThis = size > outSize ? outSize : size;
         for (unsigned i = 0; i < limitThis; i++) {
@@ -459,7 +460,7 @@ public:
         dividend_length -= this->leading_zeros()/storageSize;
 
         if (dividend_length == 0) {
-            qotient = int64_t(0);
+            qotient = storageType(0);
             if (remainder) {
                 *remainder = *this;
             }
@@ -476,7 +477,7 @@ public:
                 qotient = maxVal();
             }
             if (remainder) {
-                *remainder = int64_t(0);
+                *remainder = storageType(0);
             }
             return;
         }
@@ -568,10 +569,10 @@ protected:
         divisor <<= divisor_nlz;
         dividend <<= divisor_nlz;
 
-        quotient = int64_t(0);
+        quotient = storageType(0);
 
         for (int j = dividend_length - divisor_length; j >= 0; j--) {
-            bigType b = 1UL<<storageSize;
+            bigType b = bigType(1)<<storageSize;
             bigType p = 0;
             bigType qhat = (dividend.s[j+divisor_length] * b + dividend.s[j+divisor_length-1]) / divisor.s[divisor_length-1];
             bigType rhat = (dividend.s[j+divisor_length] * b + dividend.s[j+divisor_length-1]) - qhat * divisor.s[divisor_length-1];
@@ -592,7 +593,7 @@ protected:
             typename std::make_signed<bigType>::type t = 0;
             for (unsigned i = 0; i < divisor_length; i++) {
                 p = qhat * divisor.s[i];
-                t = dividend.s[i+j] - k - (p & ((1UL<<storageSize)-1));
+                t = dividend.s[i+j] - k - (p & ((bigType(1)<<storageSize)-1));
                 dividend.s[i+j] = t;
                 k = (p >> storageSize) - (t >> storageSize);
             }
@@ -751,7 +752,7 @@ public:
         } else if(v < -(1<<integerWidth)) {
             this->v = StorageType::minVal();
         } else {
-            this->v = (int64_t)v;
+            this->v = backingStorageType(v);
             this->v <<= _fractionalWidth;
         }
     }
@@ -801,7 +802,7 @@ public:
     T
     smallestVal()
     {
-        return T(FP(StorageType(int64_t(1))));
+        return T(FP(StorageType(backingStorageType(1))));
     }
 
     explicit constexpr
@@ -818,14 +819,14 @@ public:
     from_int(int v)
     {
         FP r;
-        r.v = (int64_t)v;
+        r.v = int64_t(v);
         return r;
     }
 
     constexpr
     FP
     operator+=(FP const &o) {
-        StorageType z(int64_t(0));
+        StorageType z(backingStorageType(0));
         if (o.v.is_negative() && v.is_negative()) {
             StorageType d(StorageType::minVal());
             d -= v;
