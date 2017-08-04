@@ -1,5 +1,9 @@
 UNITTEST_CPP_INCLUDE ?= /usr/include/UnitTest++
 
+ifneq (,$(findstring g++,$(CXX)))
+	CXXFLAGS += --coverage
+endif
+
 CXXFLAGS += -Wall -pedantic -std=c++14 -g -I$(UNITTEST_CPP_INCLUDE)
 LDFLAGS = -lUnitTest++ -lgcov
 
