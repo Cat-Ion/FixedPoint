@@ -96,7 +96,7 @@ public:
         unsigned i = 0;
         typename std::make_unsigned<int64_t>::type uv = v;
         while (uv && i < size) {
-            s[i] = uv & ((1UL<<storageSize) - 1);
+            s[i] = uv & ((bigType(1)<<storageSize) - 1);
             uv >>= storageSize;
             i++;
         }
@@ -111,13 +111,13 @@ public:
 
     constexpr
     MultiwordInteger(double v) {
-        double sig = significand(v);
         int lg = ilogb(v);
+        double sig = ldexp(v, -lg);
         if (lg < 63) {
-            int64_t i = sig*(1UL<<lg);
+            int64_t i = sig*(int64_t(1)<<lg);
             *this = i;
         } else {
-            *this = int64_t(sig * (1UL<<62));
+            *this = int64_t(sig * (int64_t(1)<<62));
             *this <<= lg - 62;
         }
     }
@@ -571,7 +571,7 @@ protected:
         quotient = int64_t(0);
 
         for (int j = dividend_length - divisor_length; j >= 0; j--) {
-            bigType b = 1UL<<storageSize;
+            bigType b = bigType(1)<<storageSize;
             bigType p = 0;
             bigType qhat = (dividend.s[j+divisor_length] * b + dividend.s[j+divisor_length-1]) / divisor.s[divisor_length-1];
             bigType rhat = (dividend.s[j+divisor_length] * b + dividend.s[j+divisor_length-1]) - qhat * divisor.s[divisor_length-1];
@@ -592,7 +592,7 @@ protected:
             typename std::make_signed<bigType>::type t = 0;
             for (unsigned i = 0; i < divisor_length; i++) {
                 p = qhat * divisor.s[i];
-                t = dividend.s[i+j] - k - (p & ((1UL<<storageSize)-1));
+                t = dividend.s[i+j] - k - (p & ((bigType(1)<<storageSize)-1));
                 dividend.s[i+j] = t;
                 k = (p >> storageSize) - (t >> storageSize);
             }
