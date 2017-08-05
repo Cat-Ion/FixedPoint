@@ -318,6 +318,15 @@ public:
         return *this;
     }
 
+    constexpr MultiwordInteger<size, storageType>
+    operator~() const {
+        MultiwordInteger<size, storageType> r;
+        for (unsigned i = 0; i < size; i++) {
+            r.s[i] = ~s[i];
+        }
+        return r;
+    }
+
     constexpr
     MultiwordInteger<size, storageType>&
     operator<<=(unsigned n) {

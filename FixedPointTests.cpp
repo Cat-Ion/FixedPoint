@@ -397,7 +397,8 @@ SUITE(MultiwordInteger) {
       assert(double(a|c) == double(a));
       assert(double(c|c) == double(c));
 
-
+      assert(double(~a) == double(c));
+      assert(double(~c) == double(a));
   }
 
   TEST(conversions) {
