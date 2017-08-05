@@ -383,6 +383,23 @@ SUITE(MultiwordInteger) {
     CHECK_EQUAL(double(a), double(b));
   }
 
+  TEST(bitwise) {
+      MultiwordInteger<4, uint8_t> a, b, c;
+      a = int64_t(0xFFFFFFFF);
+      b = int64_t(0xFFFFFFFF);
+      c = int64_t(0);
+
+      assert(double(a^a) == double(c));
+
+      assert(double(a&a) == double(a));
+      assert(double(a&c) == double(c));
+
+      assert(double(a|c) == double(a));
+      assert(double(c|c) == double(c));
+
+
+  }
+
   TEST(conversions) {
     MultiwordInteger<4, uint16_t> a;
 
