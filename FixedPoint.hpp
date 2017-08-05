@@ -1058,15 +1058,15 @@ operator<<(MultiwordInteger<size, storageType> left, unsigned right) { return le
 
 template<unsigned size, typename storageType = uint32_t>
 constexpr MultiwordInteger<size, storageType>
-operator&(MultiwordInteger<size, storageType> left, unsigned right) { return left &= right; }
+operator&(MultiwordInteger<size, storageType> left, MultiwordInteger<size, storageType> const &right) { return left &= right; }
 
 template<unsigned size, typename storageType = uint32_t>
 constexpr MultiwordInteger<size, storageType>
-operator|(MultiwordInteger<size, storageType> left, unsigned right) { return left |= right; }
+operator|(MultiwordInteger<size, storageType> left, MultiwordInteger<size, storageType> const &right) { return left |= right; }
 
 template<unsigned size, typename storageType = uint32_t>
 constexpr MultiwordInteger<size, storageType>
-operator^(MultiwordInteger<size, storageType> left, unsigned right) { return left ^= right; }
+operator^(MultiwordInteger<size, storageType> left, MultiwordInteger<size, storageType> const &right) { return left ^= right; }
 
 template<int integerWidth, unsigned minimumFractionalWidth, typename backingStorageType = uint32_t>
 constexpr FixedPoint<integerWidth, minimumFractionalWidth, backingStorageType>
