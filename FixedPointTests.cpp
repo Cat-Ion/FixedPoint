@@ -641,7 +641,7 @@ SUITE(FixedPoint) {
 
   template<typename T, int bits>
   void test_sin_perform() {
-    for (unsigned i = 0; i < 1000; i++) {
+    for (int i = -1000; i < 2000; i++) {
       double angle = i * 2*M_PI / 1000.;
       T a = angle;
 
@@ -654,7 +654,7 @@ SUITE(FixedPoint) {
 
   template<typename T, int bits>
   void test_cos_perform() {
-      for (unsigned i = 0; i < 1000; i++) {
+      for (int i = -1000; i < 2000; i++) {
         double angle = i * 2*M_PI / 1000.;
         T a = angle;
 
