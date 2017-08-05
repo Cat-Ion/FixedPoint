@@ -291,6 +291,40 @@ public:
     MultiwordInteger<size, storageType>&
     operator%=(MultiwordInteger<size, storageType> const &o) {
         *this = *this % o;
+        return *this;
+    }
+
+    constexpr MultiwordInteger<size, storageType>&
+    operator &=(MultiwordInteger<size, storageType> const &o) {
+        for (unsigned i = 0; i < size; i++) {
+            s[i] &= o.s[i];
+        }
+        return *this;
+    }
+
+    constexpr MultiwordInteger<size, storageType>&
+    operator |=(MultiwordInteger<size, storageType> const &o) {
+        for (unsigned i = 0; i < size; i++) {
+            s[i] |= o.s[i];
+        }
+        return *this;
+    }
+
+    constexpr MultiwordInteger<size, storageType>&
+    operator ^=(MultiwordInteger<size, storageType> const &o) {
+        for (unsigned i = 0; i < size; i++) {
+            s[i] ^= o.s[i];
+        }
+        return *this;
+    }
+
+    constexpr MultiwordInteger<size, storageType>
+    operator~() const {
+        MultiwordInteger<size, storageType> r;
+        for (unsigned i = 0; i < size; i++) {
+            r.s[i] = ~s[i];
+        }
+        return r;
     }
 
     constexpr
@@ -1030,6 +1064,18 @@ operator>>(MultiwordInteger<size, storageType> left, unsigned right) { return le
 template<unsigned size, typename storageType = uint32_t>
 constexpr MultiwordInteger<size, storageType>
 operator<<(MultiwordInteger<size, storageType> left, unsigned right) { return left <<= right; }
+
+template<unsigned size, typename storageType = uint32_t>
+constexpr MultiwordInteger<size, storageType>
+operator&(MultiwordInteger<size, storageType> left, MultiwordInteger<size, storageType> const &right) { return left &= right; }
+
+template<unsigned size, typename storageType = uint32_t>
+constexpr MultiwordInteger<size, storageType>
+operator|(MultiwordInteger<size, storageType> left, MultiwordInteger<size, storageType> const &right) { return left |= right; }
+
+template<unsigned size, typename storageType = uint32_t>
+constexpr MultiwordInteger<size, storageType>
+operator^(MultiwordInteger<size, storageType> left, MultiwordInteger<size, storageType> const &right) { return left ^= right; }
 
 template<int integerWidth, unsigned minimumFractionalWidth, typename backingStorageType = uint32_t>
 constexpr FixedPoint<integerWidth, minimumFractionalWidth, backingStorageType>
