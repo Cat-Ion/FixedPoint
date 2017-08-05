@@ -783,15 +783,17 @@ public:
     }
 };
 
-template<int integerWidth, unsigned _fractionalWidth, typename backingStorageType = uint32_t>
+template<int _integerWidth, unsigned _fractionalWidth, typename backingStorageType = uint32_t>
 class FixedPoint
 {
-    static_assert((integerWidth + _fractionalWidth + 1) % (sizeof(backingStorageType) * 8) == 0, "Integer and fractional width do not match size of storage type.");
+    static_assert((_integerWidth + _fractionalWidth + 1) % (sizeof(backingStorageType) * 8) == 0, "Integer and fractional width do not match size of storage type.");
 public:
-    typedef MultiwordInteger<(integerWidth+_fractionalWidth+1)/(sizeof(backingStorageType)*8), backingStorageType> StorageType;
+    typedef MultiwordInteger<(_integerWidth+_fractionalWidth+1)/(sizeof(backingStorageType)*8), backingStorageType> StorageType;
 protected:
-    typedef FixedPoint<integerWidth,_fractionalWidth,backingStorageType> FP;
+    typedef FixedPoint<_integerWidth,_fractionalWidth,backingStorageType> FP;
 public:
+    static const unsigned fractionalWidth = _fractionalWidth;
+    static const int integerWidth = _integerWidth;
     StorageType v;
 
     constexpr
@@ -813,9 +815,9 @@ public:
     constexpr
     FixedPoint(int v)
     {
-        if (v > 1 << integerWidth) {
+        if (v > 1 << _integerWidth) {
             this->v = StorageType::maxVal();
-        } else if(v < -(1<<integerWidth)) {
+        } else if(v < -(1<<_integerWidth)) {
             this->v = StorageType::minVal();
         } else {
             this->v = backingStorageType(v);
@@ -839,12 +841,6 @@ public:
             this->v = o.v;
             this->v <<= (_fractionalWidth - ofw);
         }
-    }
-
-    constexpr static
-    unsigned
-    fractionalWidth() {
-        return _fractionalWidth;
     }
 
     template<typename T>

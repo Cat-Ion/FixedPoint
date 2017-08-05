@@ -507,9 +507,9 @@ SUITE(FixedPoint) {
 
   TEST(limits) {
     FixedPoint<5, 10, uint16_t> a;
-    double max = pow(2., 5) - pow(2., -(double)a.fractionalWidth());
+    double max = pow(2., 5) - pow(2., -(double)a.fractionalWidth);
     double min = -pow(2., 5.);
-    double smallest = pow(2., -(double)a.fractionalWidth());
+    double smallest = pow(2., -(double)a.fractionalWidth);
 
     a = FixedPoint<5, 10, uint16_t>::template maxVal<FixedPoint<5,10,uint16_t>>();
     assert(double(a) == max);
