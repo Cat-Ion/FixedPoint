@@ -959,6 +959,13 @@ public:
 
     constexpr
     FP&
+    operator%=(FP const &o) {
+        v %= o.v;
+        return *this;
+    }
+
+    constexpr
+    FP&
     operator=(FP const &o)
     {
       v = o.v;
@@ -1098,6 +1105,11 @@ operator/ (FixedPoint<integerWidth, minimumFractionalWidth, backingStorageType> 
            FixedPoint<integerWidth, minimumFractionalWidth, backingStorageType> const &right) { return left /= right; }
 
 template<int integerWidth, unsigned minimumFractionalWidth, typename backingStorageType = uint32_t>
+constexpr FixedPoint<integerWidth, minimumFractionalWidth, backingStorageType>
+operator% (FixedPoint<integerWidth, minimumFractionalWidth, backingStorageType> left,
+           FixedPoint<integerWidth, minimumFractionalWidth, backingStorageType> const &right) { return left %= right; }
+
+template<int integerWidth, unsigned minimumFractionalWidth, typename backingStorageType = uint32_t>
 constexpr bool operator> (FixedPoint<integerWidth, minimumFractionalWidth, backingStorageType> const &left,
                           FixedPoint<integerWidth, minimumFractionalWidth, backingStorageType> const &right) { return right < left; }
 
@@ -1162,6 +1174,59 @@ namespace std {
         }
 
         return r;
+    }
+
+    template<int iw, unsigned mfw, typename backingStorageType = uint32_t>
+    constexpr FixedPoint<iw, mfw, backingStorageType>
+    sin(FixedPoint<iw, mfw, backingStorageType> x) {
+        if (x.is_negative()) {
+            x %= FixedPoint<iw, mfw, backingStorageType>(-2*M_PI);
+        } else {
+            x %= FixedPoint<iw, mfw, backingStorageType>(2*M_PI);
+        }
+
+        if (x > FixedPoint<iw, mfw, backingStorageType>(M_PI)) {
+            x -= FixedPoint<iw, mfw, backingStorageType>(2*M_PI);
+        } else if (x < FixedPoint<iw, mfw, backingStorageType>(-M_PI)) {
+            x += FixedPoint<iw, mfw, backingStorageType>(2*M_PI);
+        }
+
+        FixedPoint<iw, mfw, backingStorageType> c1(.405284735), c2(1.27323954), c3(0.225);
+        FixedPoint<iw, mfw, backingStorageType> ret;
+        ret = c1 * x.nabs();
+        ret += c2;
+        ret *= x;
+
+        ret += c3 * (ret * std::abs(ret) - ret);
+
+        return ret;
+    }
+
+    template<int iw, unsigned mfw, typename backingStorageType = uint32_t>
+    constexpr FixedPoint<iw, mfw, backingStorageType>
+    cos(FixedPoint<iw, mfw, backingStorageType> x) {
+        if (x.is_negative()) {
+            x %= FixedPoint<iw, mfw, backingStorageType>(-2*M_PI);
+        } else {
+            x %= FixedPoint<iw, mfw, backingStorageType>(2*M_PI);
+        }
+
+        x += FixedPoint<iw, mfw, backingStorageType>(M_PI_2);
+        if (x > FixedPoint<iw, mfw, backingStorageType>(M_PI)) {
+            x -= FixedPoint<iw, mfw, backingStorageType>(2*M_PI);
+        } else if (x < FixedPoint<iw, mfw, backingStorageType>(-M_PI)) {
+            x += FixedPoint<iw, mfw, backingStorageType>(2*M_PI);
+        }
+
+        FixedPoint<iw, mfw, backingStorageType> c1(.405284735), c2(1.27323954), c3(0.225);
+        FixedPoint<iw, mfw, backingStorageType> ret;
+        ret = c1 * x.nabs();
+        ret += c2;
+        ret *= x;
+
+        ret += c3 * (ret * std::abs(ret) - ret);
+
+        return ret;
     }
 }
 
