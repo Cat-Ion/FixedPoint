@@ -639,10 +639,48 @@ SUITE(FixedPoint) {
     }
   }
 
+  template<typename T, int bits>
+  void test_sin_perform() {
+    for (unsigned i = 0; i < 1000; i++) {
+      double angle = i * 2*M_PI / 1000.;
+      T a = angle;
+
+      double floats = sin(angle);
+      T b = std::sin(a);
+
+      CHECK_CLOSE(floats, double(b), 1.8e-4 * 2*M_PI);
+    }
+  }
+
+  template<typename T, int bits>
+  void test_cos_perform() {
+      for (unsigned i = 0; i < 1000; i++) {
+        double angle = i * 2*M_PI / 1000.;
+        T a = angle;
+
+        double floats = cos(angle);
+        T b = std::cos(a);
+
+        CHECK_CLOSE(floats, double(b), 1.8e-4 * 2*M_PI);
+      }
+  }
+
   TEST(atan2) {
     test_atan2_perform<FixedPoint<4,91,uint32_t>, 32>();
     test_atan2_perform<FixedPoint<4,91,uint16_t>, 16>();
     test_atan2_perform<FixedPoint<4,91,uint8_t>, 8>();
+  }
+
+  TEST(sin) {
+    test_sin_perform<FixedPoint<4,91,uint32_t>, 32>();
+    test_sin_perform<FixedPoint<4,91,uint16_t>, 16>();
+    test_sin_perform<FixedPoint<4,91,uint8_t>, 8>();
+  }
+
+  TEST(cos) {
+    test_cos_perform<FixedPoint<4,91,uint32_t>, 32>();
+    test_cos_perform<FixedPoint<4,91,uint16_t>, 16>();
+    test_cos_perform<FixedPoint<4,91,uint8_t>, 8>();
   }
 
   TEST(abs) {
