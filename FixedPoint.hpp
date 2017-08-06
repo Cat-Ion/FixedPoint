@@ -314,16 +314,14 @@ protected:
     }
 
 public:
-    constexpr
-    void
-    negate() {
-        bigType c = 1;
-        for (unsigned i = 0; i < size; i++) {
-            c += static_cast<storageType>(~s[i]);
-            s[i] = c;
-            c >>= storageSize;
-        }
-    }
+    constexpr void negate();
+    constexpr void fill_leading_bits(unsigned num);
+
+    constexpr unsigned leading_zeros() const;
+    constexpr bool     is_negative() const;
+    constexpr bool     is_positive() const;
+    // Return true if bit at position is set, starting from the LSB.
+    constexpr bool bit(size_t position) const;
 
     explicit constexpr operator bool() const;
     explicit constexpr operator int8_t() const;
@@ -331,63 +329,6 @@ public:
     explicit constexpr operator int32_t() const;
     explicit constexpr operator int64_t() const;
     explicit constexpr operator double() const;
-
-    constexpr
-    unsigned
-    leading_zeros() const {
-        unsigned r = 0;
-        for (unsigned i = size; i-- > 0; ) {
-            if (s[i] == 0) {
-                r += storageSize;
-            } else {
-                return r + nlz(s[i]);
-            }
-        }
-        return r;
-    }
-
-    constexpr
-    bool
-    is_negative() const {
-        return static_cast<signedType>(s[size-1]) < 0;
-    }
-
-    constexpr
-    bool
-    is_positive() const {
-        if (static_cast<signedType>(s[size-1]) > 0) {
-            return true;
-        } else if (static_cast<signedType>(s[size-1]) < 0) {
-            return false;
-        }
-        for (unsigned i = size - 1; i-- > 0; ) {
-            if (s[i]) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    constexpr
-    void
-    fill_leading_bits(unsigned num) {
-        unsigned i = size - 1;
-        while (num >= storageSize) {
-            s[i] = ~static_cast<storageType>(0);
-            num -= storageSize;
-            i--;
-        }
-        if (num) {
-            s[i] |= (~static_cast<storageType>(0)) << (storageSize - num);
-        }
-    }
-
-    // Return true if bit at position is set, starting from the LSB.
-    constexpr bool bit(size_t position) const {
-        size_t word = position / storageSize;
-        position %= storageSize;
-        return s[word] & (1<<position);
-    }
 };
 
 template<int _integerWidth, unsigned _fractionalWidth, typename backingStorageType = uint32_t>
@@ -788,4 +729,5 @@ namespace std {
 #include "MultiwordIntegerArithmetics.hpp"
 #include "MultiwordIntegerBitwise.hpp"
 #include "MultiwordIntegerCasts.hpp"
+#include "MultiwordIntegerUtility.hpp"
 #endif // FIXEDPOINT_HPP
