@@ -3,6 +3,24 @@
 #include "FixedPoint.hpp"
 
 template<int _integerWidth, unsigned _fractionalWidth, typename backingStorageType> constexpr
+FixedPoint<_integerWidth, _fractionalWidth, backingStorageType>
+FixedPoint<_integerWidth, _fractionalWidth, backingStorageType>::_maxVal() {
+    return StorageType::_maxVal();
+}
+
+template<int _integerWidth, unsigned _fractionalWidth, typename backingStorageType> constexpr
+FixedPoint<_integerWidth, _fractionalWidth, backingStorageType>
+FixedPoint<_integerWidth, _fractionalWidth, backingStorageType>::_minVal() {
+    return StorageType::_minVal();
+}
+
+template<int _integerWidth, unsigned _fractionalWidth, typename backingStorageType> constexpr
+FixedPoint<_integerWidth, _fractionalWidth, backingStorageType>
+FixedPoint<_integerWidth, _fractionalWidth, backingStorageType>::_smallestVal() {
+    return StorageType::_smallestVal();
+}
+
+template<int _integerWidth, unsigned _fractionalWidth, typename backingStorageType> constexpr
 bool
 FixedPoint<_integerWidth, _fractionalWidth, backingStorageType>::is_negative() const {
   return v.is_negative();

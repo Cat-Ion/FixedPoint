@@ -46,15 +46,15 @@ public:
     static const constexpr size_t storageSize = sizeof(storageType) * 8;
 
 protected:
-    static constexpr MultiwordInteger<size, storageType> _maxVal();
-    static constexpr MultiwordInteger<size, storageType> _minVal();
     typedef typename std::make_signed<_storageType>::type signedType;
     typedef typename make_bigger<_storageType>::type bigType;
     _storageType s[size];
 
 public:
-    static const constexpr MultiwordInteger<size, storageType> maxVal = _maxVal();
-    static const constexpr MultiwordInteger<size, storageType> minVal = _minVal();
+    static constexpr MultiwordInteger<size, storageType> _maxVal();
+    static constexpr MultiwordInteger<size, storageType> _minVal();
+    static const MultiwordInteger<size, storageType> maxVal;
+    static const MultiwordInteger<size, storageType> minVal;
 
     constexpr MultiwordInteger() : s{0} {}
     template<unsigned otherSize> constexpr MultiwordInteger(MultiwordInteger<otherSize, storageType> const &o);
@@ -131,8 +131,12 @@ protected:
                     unsigned dividend_length, unsigned divisor_length,
                     unsigned divisor_nlz) const;
 };
-template<unsigned size, typename storageType> const constexpr MultiwordInteger<size, storageType> MultiwordInteger<size, storageType>::maxVal;
-template<unsigned size, typename storageType> const constexpr MultiwordInteger<size, storageType> MultiwordInteger<size, storageType>::minVal;
+
+template<unsigned size, typename storageType> const constexpr
+MultiwordInteger<size, storageType> MultiwordInteger<size, storageType>::maxVal = MultiwordInteger<size, storageType>::_maxVal();
+
+template<unsigned size, typename storageType> const constexpr
+MultiwordInteger<size, storageType> MultiwordInteger<size, storageType>::minVal = MultiwordInteger<size, storageType>::_minVal();
 
 #include "MultiwordIntegerConstructors.hpp"
 #include "MultiwordIntegerArithmetics.hpp"

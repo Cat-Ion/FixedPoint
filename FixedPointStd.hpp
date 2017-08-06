@@ -9,8 +9,8 @@ namespace std {
     constexpr FixedPoint<iw, mfw, backingStorageType>
     abs(FixedPoint<iw,mfw,backingStorageType> const &y) {
         if (y.is_negative()) {
-            if (y == FixedPoint<iw, mfw,backingStorageType>::minVal) {
-                return FixedPoint<iw, mfw, backingStorageType>::maxVal;
+            if (y == FixedPoint<iw, mfw,backingStorageType>::_minVal()) {
+                return FixedPoint<iw, mfw, backingStorageType>::_maxVal();
             } else {
                 return -y;
             }

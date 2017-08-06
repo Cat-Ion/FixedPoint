@@ -27,9 +27,13 @@ public:
     constexpr FixedPoint(StorageType const &s);
     template<int oiw, unsigned ofw, typename otherStorageType> constexpr FixedPoint(FixedPoint<oiw,ofw,otherStorageType> const &o);
 
-    constexpr static FP maxVal = FP(StorageType::maxVal);
-    constexpr static FP minVal = FP(StorageType::minVal);
-    constexpr static FP smallestVal = FP(StorageType(int64_t(1)));
+    static constexpr FP _maxVal();
+    static constexpr FP _minVal();
+    static constexpr FP _smallestVal();
+
+    static const FP maxVal;
+    static const FP minVal;
+    static const FP smallestVal;
 
     constexpr FP& operator+=(FP const &o);
     constexpr FP& operator-=(FP const &o);
@@ -54,9 +58,20 @@ public:
     explicit constexpr operator int32_t() const;
     explicit constexpr operator int64_t() const;
 };
-template<int integerWidth, unsigned fractionalWidth, typename storageType> constexpr FixedPoint<integerWidth, fractionalWidth, storageType> FixedPoint<integerWidth, fractionalWidth, storageType>::maxVal;
-template<int integerWidth, unsigned fractionalWidth, typename storageType> constexpr FixedPoint<integerWidth, fractionalWidth, storageType> FixedPoint<integerWidth, fractionalWidth, storageType>::minVal;
-template<int integerWidth, unsigned fractionalWidth, typename storageType> constexpr FixedPoint<integerWidth, fractionalWidth, storageType> FixedPoint<integerWidth, fractionalWidth, storageType>::smallestVal;
+template<int integerWidth, unsigned fractionalWidth, typename storageType>
+constexpr
+FixedPoint<integerWidth, fractionalWidth, storageType>
+FixedPoint<integerWidth, fractionalWidth, storageType>::maxVal = FixedPoint<integerWidth, fractionalWidth, storageType>::StorageType::_maxVal();
+
+template<int integerWidth, unsigned fractionalWidth, typename storageType>
+constexpr
+FixedPoint<integerWidth, fractionalWidth, storageType>
+FixedPoint<integerWidth, fractionalWidth, storageType>::minVal = FixedPoint<integerWidth, fractionalWidth, storageType>::StorageType::_minVal();
+
+template<int integerWidth, unsigned fractionalWidth, typename storageType>
+constexpr
+FixedPoint<integerWidth, fractionalWidth, storageType>
+FixedPoint<integerWidth, fractionalWidth, storageType>::smallestVal = typename FixedPoint<integerWidth, fractionalWidth, storageType>::StorageType(int64_t(1));
 
 
 #include "FixedPointConstructors.hpp"

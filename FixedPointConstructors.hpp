@@ -6,9 +6,9 @@ template<int integerWidth, unsigned fractionalWidth, typename storageType> const
 FixedPoint<integerWidth, fractionalWidth, storageType>::FixedPoint(double v)
 {
     if (v > double(maxVal)) {
-        this->v = StorageType::maxVal;
+        this->v = StorageType::_maxVal();
     } else if (v < double(minVal)) {
-        this->v = StorageType::minVal;
+        this->v = StorageType::_minVal();
     } else {
         this->v = v * pow(2., double(fractionalWidth));
     }
@@ -18,9 +18,9 @@ template<int integerWidth, unsigned fractionalWidth, typename storageType> const
 FixedPoint<integerWidth, fractionalWidth, storageType>::FixedPoint(int v)
 {
     if (v > 1 << integerWidth) {
-        this->v = StorageType::maxVal;
+        this->v = StorageType::_maxVal();
     } else if(v < -(1<<integerWidth)) {
-        this->v = StorageType::minVal;
+        this->v = StorageType::_minVal();
     } else {
         this->v = storageType(v);
         this->v <<= fractionalWidth;

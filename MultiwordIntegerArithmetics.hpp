@@ -139,9 +139,9 @@ MultiwordInteger<size, storageType>::quotrem(
      */
     if (divisor_length == 0) {
         if (this->is_negative()) {
-            qotient = minVal;
+            qotient = _minVal();
         } else {
-            qotient = maxVal;
+            qotient = _maxVal();
         }
         if (remainder) {
             *remainder = storageType(0);
