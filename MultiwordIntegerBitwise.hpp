@@ -1,6 +1,6 @@
 #ifndef MULTIWORDINTEGERBITWISE_HPP
 #define MULTIWORDINTEGERBITWISE_HPP
-#include "FixedPoint.hpp"
+#include "MultiwordInteger.hpp"
 
 template<unsigned size, typename storageType> constexpr MultiwordInteger<size, storageType>& MultiwordInteger<size, storageType>::operator &=(MultiwordInteger<size, storageType> const &o) {
     for (unsigned i = 0; i < size; i++) {

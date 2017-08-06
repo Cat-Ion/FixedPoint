@@ -1,6 +1,7 @@
 #ifndef MULTIWORDINTEGERCOMPARISONS_HPP
 #define MULTIWORDINTEGERCOMPARISONS_HPP
-#include "FixedPoint.hpp"
+#include "MultiwordInteger.hpp"
+
 template<unsigned size, typename storageType> constexpr bool MultiwordInteger<size, storageType>::operator<(MultiwordInteger<size, storageType> const &o) const {
     if (static_cast<signedType>(s[size-1]) < static_cast<signedType>(o.s[size-1])) {
         return true;

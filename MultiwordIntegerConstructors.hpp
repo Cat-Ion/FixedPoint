@@ -1,6 +1,7 @@
 #ifndef MULTIWORDINTEGERCONSTRUCTORS_HPP
 #define MULTIWORDINTEGERCONSTRUCTORS_HPP
-#include "FixedPoint.hpp"
+#include <cmath>
+#include "MultiwordInteger.hpp"
 
 template<unsigned size, typename storageType> template<unsigned otherSize> constexpr MultiwordInteger<size, storageType>::MultiwordInteger(MultiwordInteger<otherSize, storageType> const &o) : s{0} {
     unsigned num = size > otherSize ? otherSize : size;

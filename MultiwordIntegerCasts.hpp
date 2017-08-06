@@ -1,6 +1,6 @@
 #ifndef MULTIWORDINTEGERCASTS_HPP
 #define MULTIWORDINTEGERCASTS_HPP
-#include "FixedPoint.hpp"
+#include "MultiwordInteger.hpp"
 
 template<unsigned size, typename storageType> constexpr MultiwordInteger<size, storageType>::operator bool() const {
     for (unsigned i = 0; i < size; i++) {

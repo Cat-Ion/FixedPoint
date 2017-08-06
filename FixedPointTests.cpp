@@ -389,16 +389,16 @@ SUITE(MultiwordInteger) {
       b = int64_t(0xFFFFFFFF);
       c = int64_t(0);
 
-      assert(double(a^a) == double(c));
+      CHECK_EQUAL(double(a^a), double(c));
 
-      assert(double(a&a) == double(a));
-      assert(double(a&c) == double(c));
+      CHECK_EQUAL(double(a&a), double(a));
+      CHECK_EQUAL(double(a&c), double(c));
 
-      assert(double(a|c) == double(a));
-      assert(double(c|c) == double(c));
+      CHECK_EQUAL(double(a|c), double(a));
+      CHECK_EQUAL(double(c|c), double(c));
 
-      assert(double(~a) == double(c));
-      assert(double(~c) == double(a));
+      CHECK_EQUAL(double(~a), double(c));
+      CHECK_EQUAL(double(~c), double(a));
   }
 
   TEST(conversions) {
@@ -472,37 +472,37 @@ SUITE(FixedPoint) {
 
     FixedPoint<31, 0>::StorageType s(int64_t(1));
 
-    CHECK_EQUAL(double(double(a)), double(5.));
+    CHECK_EQUAL(double(a), 5.);
 
     a = int(5);
-    CHECK_EQUAL(double(double(a)), double(5.));
+    CHECK_EQUAL(double(a), 5.);
 
     b = a;
-    CHECK_EQUAL(double(double(b)), double(5.));
+    CHECK_EQUAL(double(b), 5.);
 
     c = a;
-    CHECK_EQUAL(double(double(c)), double(5.));
+    CHECK_EQUAL(double(c), 5.);
 
     d = a;
-    CHECK_EQUAL(double(double(d)), double(5.));
+    CHECK_EQUAL(double(d), 5.);
 
-    FixedPoint<31, 0> e(s);
-    CHECK_EQUAL(double(double(e)), double(1.));
+    FixedPoint<31, 0> e((s));
+    CHECK_EQUAL(double(e), 1.);
 
-    FixedPoint<30, 1> f(s);
-    CHECK_EQUAL(double(double(f)), double(0.5));
+    FixedPoint<30, 1> f((s));
+    CHECK_EQUAL(double(f), 0.5);
 
     a = 100.;
-    CHECK_EQUAL(double(double(a)), double((FixedPoint<3, 28, uint16_t>::maxVal<double>())));
+    CHECK_EQUAL(double(a), double(FixedPoint<3, 28, uint16_t>::maxVal));
 
     a = -100.;
-    CHECK_EQUAL(double(double(a)), double((FixedPoint<3, 28, uint16_t>::minVal<double>())));
+    CHECK_EQUAL(double(a), double(FixedPoint<3, 28, uint16_t>::minVal));
 
     a = int(100);
-    CHECK_EQUAL(double(double(a)), double((FixedPoint<3, 28, uint16_t>::maxVal<double>())));
+    CHECK_EQUAL(double(a), double(FixedPoint<3, 28, uint16_t>::maxVal));
 
     a = int(-100);
-    CHECK_EQUAL(double(double(a)), double((FixedPoint<3, 28, uint16_t>::minVal<double>())));
+    CHECK_EQUAL(double(a), double(FixedPoint<3, 28, uint16_t>::minVal));
   }
 
   TEST(limits) {
@@ -511,14 +511,14 @@ SUITE(FixedPoint) {
     double min = -pow(2., 5.);
     double smallest = pow(2., -(double)a.fractionalWidth);
 
-    a = FixedPoint<5, 10, uint16_t>::template maxVal<FixedPoint<5,10,uint16_t>>();
-    assert(double(a) == max);
+    a = FixedPoint<5, 10, uint16_t>::maxVal;
+    CHECK_EQUAL(double(a), max);
 
-    a = FixedPoint<5, 10, uint16_t>::template minVal<FixedPoint<5,10,uint16_t>>();
-    assert(double(a) == min);
+    a = FixedPoint<5, 10, uint16_t>::minVal;
+    CHECK_EQUAL(double(a), min);
 
-    a = FixedPoint<5, 10, uint16_t>::template smallestVal<FixedPoint<5,10,uint16_t>>();
-    assert(double(a) == smallest);
+    a = FixedPoint<5, 10, uint16_t>::smallestVal;
+    CHECK_EQUAL(double(a), smallest);
   }
 
   TEST(addition) {
@@ -703,12 +703,12 @@ SUITE(FixedPoint) {
     CHECK_EQUAL(double(std::abs(c)), double(c));
     CHECK_EQUAL(double(std::abs(e)), double(e));
 
-    a = FixedPoint<4, 91, uint32_t>::template maxVal<FixedPoint<4, 91, uint32_t>>();
+    a = FixedPoint<4, 91, uint32_t>::maxVal;
     CHECK_EQUAL(double(std::abs(a)), double(a));
     CHECK_EQUAL(double(std::abs(-a)), double(a));
 
-    a = FixedPoint<4, 91, uint32_t>::template minVal<FixedPoint<4, 91, uint32_t>>();
-    b = FixedPoint<4, 91, uint32_t>::template maxVal<FixedPoint<4, 91, uint32_t>>();
+    a = FixedPoint<4, 91, uint32_t>::minVal;
+    b = FixedPoint<4, 91, uint32_t>::maxVal;
     CHECK_EQUAL(double(std::abs(a)), double(b));
     CHECK_EQUAL(double(std::abs(b)), double(b));
   }

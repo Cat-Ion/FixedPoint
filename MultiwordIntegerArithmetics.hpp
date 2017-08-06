@@ -1,6 +1,6 @@
 #ifndef MULTIWORDINTEGERARITHMETICS_HPP
 #define MULTIWORDINTEGERARITHMETICS_HPP
-#include "FixedPoint.hpp"
+#include "MultiwordInteger.hpp"
 
 template<unsigned size, typename storageType> constexpr MultiwordInteger<size, storageType>& MultiwordInteger<size, storageType>::operator+=(MultiwordInteger<size, storageType> const &o)
 {

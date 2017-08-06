@@ -1,6 +1,6 @@
 #ifndef MULTIWORDINTEGERUTILITY_HPP
 #define MULTIWORDINTEGERUTILITY_HPP
-#include "FixedPoint.hpp"
+#include "MultiwordInteger.hpp"
 
 template<unsigned size, typename storageType> constexpr
 MultiwordInteger<size, storageType> MultiwordInteger<size, storageType>::_maxVal() {
