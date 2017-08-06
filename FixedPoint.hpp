@@ -99,20 +99,14 @@ public:
     constexpr MultiwordInteger<size, storageType>& operator--();
     constexpr MultiwordInteger<size, storageType>& operator--(int);
 
+    constexpr MultiwordInteger<size, storageType> operator-() const;
+
     constexpr MultiwordInteger<size, storageType>& operator &=(MultiwordInteger<size, storageType> const &o);
     constexpr MultiwordInteger<size, storageType>& operator |=(MultiwordInteger<size, storageType> const &o);
     constexpr MultiwordInteger<size, storageType>& operator ^=(MultiwordInteger<size, storageType> const &o);
     constexpr MultiwordInteger<size, storageType>  operator ~() const;
     constexpr MultiwordInteger<size, storageType>& operator <<=(unsigned n);
     constexpr MultiwordInteger<size, storageType>& operator >>=(unsigned n);
-
-    constexpr
-    MultiwordInteger<size, storageType>
-    operator-() const {
-        MultiwordInteger<size, storageType> r(*this);
-        r.negate();
-        return r;
-    }
 
     constexpr
     bool

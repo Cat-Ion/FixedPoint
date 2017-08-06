@@ -74,4 +74,10 @@ template<unsigned size, typename storageType> constexpr MultiwordInteger<size, s
     return r;
 }
 
+template<unsigned size, typename storageType> constexpr MultiwordInteger<size, storageType> MultiwordInteger<size, storageType>::operator- () const {
+    MultiwordInteger<size, storageType> r(*this);
+    r.negate();
+    return r;
+}
+
 #endif // MULTIWORDINTEGERARITHMETICS_HPP
