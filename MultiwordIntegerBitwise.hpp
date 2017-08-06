@@ -104,5 +104,24 @@ template<unsigned size, typename storageType> constexpr MultiwordInteger<size, s
     return *this;
 }
 
+template<unsigned size, typename storageType = uint32_t>
+constexpr MultiwordInteger<size, storageType>
+operator>>(MultiwordInteger<size, storageType> left, unsigned right) { return left >>= right; }
+
+template<unsigned size, typename storageType = uint32_t>
+constexpr MultiwordInteger<size, storageType>
+operator<<(MultiwordInteger<size, storageType> left, unsigned right) { return left <<= right; }
+
+template<unsigned size, typename storageType = uint32_t>
+constexpr MultiwordInteger<size, storageType>
+operator&(MultiwordInteger<size, storageType> left, MultiwordInteger<size, storageType> const &right) { return left &= right; }
+
+template<unsigned size, typename storageType = uint32_t>
+constexpr MultiwordInteger<size, storageType>
+operator|(MultiwordInteger<size, storageType> left, MultiwordInteger<size, storageType> const &right) { return left |= right; }
+
+template<unsigned size, typename storageType = uint32_t>
+constexpr MultiwordInteger<size, storageType>
+operator^(MultiwordInteger<size, storageType> left, MultiwordInteger<size, storageType> const &right) { return left ^= right; }
 
 #endif // MULTIWORDINTEGERBITWISE_HPP

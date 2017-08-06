@@ -385,26 +385,6 @@ public:
     explicit constexpr operator int64_t() const { return int64_t(v>>_fractionalWidth); }
 };
 
-template<unsigned size, typename storageType = uint32_t>
-constexpr MultiwordInteger<size, storageType>
-operator>>(MultiwordInteger<size, storageType> left, unsigned right) { return left >>= right; }
-
-template<unsigned size, typename storageType = uint32_t>
-constexpr MultiwordInteger<size, storageType>
-operator<<(MultiwordInteger<size, storageType> left, unsigned right) { return left <<= right; }
-
-template<unsigned size, typename storageType = uint32_t>
-constexpr MultiwordInteger<size, storageType>
-operator&(MultiwordInteger<size, storageType> left, MultiwordInteger<size, storageType> const &right) { return left &= right; }
-
-template<unsigned size, typename storageType = uint32_t>
-constexpr MultiwordInteger<size, storageType>
-operator|(MultiwordInteger<size, storageType> left, MultiwordInteger<size, storageType> const &right) { return left |= right; }
-
-template<unsigned size, typename storageType = uint32_t>
-constexpr MultiwordInteger<size, storageType>
-operator^(MultiwordInteger<size, storageType> left, MultiwordInteger<size, storageType> const &right) { return left ^= right; }
-
 template<int integerWidth, unsigned minimumFractionalWidth, typename backingStorageType = uint32_t>
 constexpr FixedPoint<integerWidth, minimumFractionalWidth, backingStorageType>
 operator+ (FixedPoint<integerWidth, minimumFractionalWidth, backingStorageType> left,
