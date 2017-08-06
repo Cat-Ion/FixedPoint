@@ -3,6 +3,26 @@
 #include "FixedPoint.hpp"
 
 template<unsigned size, typename storageType> constexpr
+MultiwordInteger<size, storageType> MultiwordInteger<size, storageType>::_maxVal() {
+    MultiwordInteger<size, storageType> r;
+    for (unsigned i = 0; i < size-1; i++) {
+        r.s[i] = (bigType(1)<<(storageSize)) - 1;;
+    }
+    r.s[size-1] = (1U<<(storageSize - 1)) - 1;
+    return r;
+}
+
+template<unsigned size, typename storageType> constexpr
+MultiwordInteger<size, storageType> MultiwordInteger<size, storageType>::_minVal() {
+    MultiwordInteger<size, storageType> r;
+    for (unsigned i = 0; i < size-1; i++) {
+        r.s[i] = 0;
+    }
+    r.s[size-1] = 1U<<(storageSize-1);
+    return r;
+}
+
+template<unsigned size, typename storageType> constexpr
 void MultiwordInteger<size, storageType>::negate() {
     bigType c = 1;
     for (unsigned i = 0; i < size; i++) {

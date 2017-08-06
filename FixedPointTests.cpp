@@ -63,8 +63,8 @@ SUITE(MultiwordInteger) {
   }
 
   TEST(limits) {
-    MultiwordInteger<2, uint16_t> maxv(MultiwordInteger<2, uint16_t>::maxVal());
-    MultiwordInteger<2, uint16_t> minv(MultiwordInteger<2, uint16_t>::minVal());
+    MultiwordInteger<2, uint16_t> maxv(MultiwordInteger<2, uint16_t>::maxVal);
+    MultiwordInteger<2, uint16_t> minv(MultiwordInteger<2, uint16_t>::minVal);
     MultiwordInteger<2, uint16_t> a(int64_t(0x80000000));
 
     CHECK_EQUAL(double(a), double(minv));
@@ -187,8 +187,8 @@ SUITE(MultiwordInteger) {
     // Division by zero
     a = 1.;
     b = 0.;
-    c = MultiwordInteger<2, uint16_t>::maxVal();
-    d = MultiwordInteger<2, uint16_t>::minVal();
+    c = MultiwordInteger<2, uint16_t>::maxVal;
+    d = MultiwordInteger<2, uint16_t>::minVal;
     CHECK_EQUAL(double(a/b), double(c));
     CHECK_EQUAL(double((-a)/b), double(d));
   }
@@ -351,7 +351,7 @@ SUITE(MultiwordInteger) {
 
     // Result should be negative
     a <<= 31;
-    b = MultiwordInteger<2, uint16_t>::minVal();
+    b = MultiwordInteger<2, uint16_t>::minVal;
     CHECK_EQUAL(double(a), double(b));
 
     // Result should be sign extended, and negative

@@ -45,10 +45,17 @@ template<> unsigned nlz(uint8_t x) {
 template<unsigned size, typename _storageType = uint32_t>
 class MultiwordInteger
 {
+
 public:
     typedef _storageType storageType;
     static const constexpr size_t numWords = size;
     static const constexpr size_t storageSize = sizeof(storageType) * 8;
+protected:
+    static constexpr MultiwordInteger<size, storageType> _maxVal();
+    static constexpr MultiwordInteger<size, storageType> _minVal();
+public:
+    static const constexpr MultiwordInteger<size, storageType> maxVal = _maxVal();
+    static const constexpr MultiwordInteger<size, storageType> minVal = _minVal();
 
     template<unsigned otherSize, typename otherStorageType>
     friend class MultiwordInteger;
@@ -65,28 +72,6 @@ public:
     constexpr MultiwordInteger(int64_t v);
     constexpr MultiwordInteger(double v);
     template<unsigned otherSize, typename otherStorageType> constexpr MultiwordInteger(MultiwordInteger<otherSize, otherStorageType> const &o);
-
-    static constexpr
-    MultiwordInteger<size, storageType>
-    maxVal() {
-        MultiwordInteger<size, storageType> r;
-        for (unsigned i = 0; i < size-1; i++) {
-            r.s[i] = (bigType(1)<<(storageSize)) - 1;;
-        }
-        r.s[size-1] = (1U<<(storageSize - 1)) - 1;
-        return r;
-    }
-
-    static constexpr
-    MultiwordInteger<size, storageType>
-    minVal() {
-        MultiwordInteger<size, storageType> r;
-        for (unsigned i = 0; i < size-1; i++) {
-            r.s[i] = 0;
-        }
-        r.s[size-1] = 1U<<(storageSize-1);
-        return r;
-    }
 
     constexpr MultiwordInteger<size, storageType>& operator+=(MultiwordInteger<size, storageType> const &o);
     constexpr MultiwordInteger<size, storageType>& operator-=(MultiwordInteger<size, storageType> const &o);
@@ -156,6 +141,8 @@ protected:
                     unsigned dividend_length, unsigned divisor_length,
                     unsigned divisor_nlz) const;
 };
+template<unsigned size, typename storageType> const constexpr MultiwordInteger<size, storageType> MultiwordInteger<size, storageType>::maxVal;
+template<unsigned size, typename storageType> const constexpr MultiwordInteger<size, storageType> MultiwordInteger<size, storageType>::minVal;
 
 template<int _integerWidth, unsigned _fractionalWidth, typename backingStorageType = uint32_t>
 class FixedPoint
@@ -190,9 +177,9 @@ public:
     FixedPoint(int v)
     {
         if (v > 1 << _integerWidth) {
-            this->v = StorageType::maxVal();
+            this->v = StorageType::maxVal;
         } else if(v < -(1<<_integerWidth)) {
-            this->v = StorageType::minVal();
+            this->v = StorageType::minVal;
         } else {
             this->v = backingStorageType(v);
             this->v <<= _fractionalWidth;
@@ -222,7 +209,7 @@ public:
     T
     maxVal()
     {
-        return T(FP(StorageType::maxVal()));
+        return T(FP(StorageType::maxVal));
     }
 
     template<typename T>
@@ -230,7 +217,7 @@ public:
     T
     minVal()
     {
-        return T(FP(StorageType::minVal()));
+        return T(FP(StorageType::minVal));
     }
 
     template<typename T>
@@ -264,11 +251,11 @@ public:
     operator+=(FP const &o) {
         StorageType z(backingStorageType(0));
         if (o.v.is_negative() && v.is_negative()) {
-            StorageType d(StorageType::minVal());
+            StorageType d(StorageType::minVal);
             d -= v;
             assert (d <= o.v);
         } else if(o.v.is_positive() && v.is_positive()) {
-            StorageType d(StorageType::maxVal());
+            StorageType d(StorageType::maxVal);
             d -= v;
             assert (d >= o.v);
         }
