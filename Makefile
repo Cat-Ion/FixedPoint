@@ -4,15 +4,17 @@ ifneq (,$(findstring g++,$(CXX)))
 	CXXFLAGS += --coverage
 endif
 
-CXXFLAGS += -Wall -pedantic -std=c++14 -g -I$(UNITTEST_CPP_INCLUDE)
+CXXFLAGS += -Wall -pedantic -std=c++14 -g -I$(UNITTEST_CPP_INCLUDE) -Iinclude
 LDFLAGS = -lUnitTest++ -lgcov
+
+HEADERS = $(find -type f include)
 
 all: tests
 
 FixedPointTests: FixedPointTests.o
 	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS)
 
-FixedPointTests.o: FixedPointTests.cpp FixedPoint.hpp
+FixedPointTests.o: FixedPointTests.cpp $(HEADERS)
 
 tests: FixedPointTests
 	./FixedPointTests
