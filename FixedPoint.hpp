@@ -108,34 +108,8 @@ public:
     constexpr MultiwordInteger<size, storageType>& operator <<=(unsigned n);
     constexpr MultiwordInteger<size, storageType>& operator >>=(unsigned n);
 
-    constexpr
-    bool
-    operator<(MultiwordInteger<size, storageType> const &o) const {
-        if (static_cast<signedType>(s[size-1]) < static_cast<signedType>(o.s[size-1])) {
-            return true;
-        } else if(static_cast<signedType>(s[size-1]) > static_cast<signedType>(o.s[size-1])) {
-            return false;
-        }
-        for (unsigned i = size - 1; i-- > 0; ) {
-            if (s[i] < o.s[i]) {
-                return true;
-            } else if (s[i] > o.s[i]) {
-                return false;
-            }
-        }
-        return false;
-    }
-
-    constexpr
-    bool
-    operator==(MultiwordInteger<size, storageType> const &o) const {
-        for (unsigned i = size; i-- > 0; ) {
-            if (s[i] != o.s[i]) {
-                return false;
-            }
-        }
-        return true;
-    }
+    constexpr bool operator<(MultiwordInteger<size, storageType> const &o) const;
+    constexpr bool operator==(MultiwordInteger<size, storageType> const &o) const;
 
     template<unsigned otherSize, unsigned outSize>
     constexpr
@@ -701,26 +675,6 @@ public:
     explicit constexpr operator int32_t() const { return int32_t(v>>_fractionalWidth); }
     explicit constexpr operator int64_t() const { return int64_t(v>>_fractionalWidth); }
 };
-
-template<unsigned size, typename storageType = uint32_t>
-constexpr bool
-operator>(MultiwordInteger<size, storageType> const &left,
-          MultiwordInteger<size, storageType> const &right) { return right < left; }
-
-template<unsigned size, typename storageType = uint32_t>
-constexpr bool
-operator<=(MultiwordInteger<size, storageType> const &left,
-           MultiwordInteger<size, storageType> const &right) { return !(left > right); }
-
-template<unsigned size, typename storageType = uint32_t>
-constexpr bool
-operator>=(MultiwordInteger<size, storageType> const &left,
-           MultiwordInteger<size, storageType> const &right) { return !(left < right); }
-
-template<unsigned size, typename storageType = uint32_t>
-constexpr bool
-operator!=(MultiwordInteger<size, storageType> const &left,
-           MultiwordInteger<size, storageType> const &right) { return !(left == right); }
 
 template<unsigned size, typename storageType = uint32_t>
 constexpr MultiwordInteger<size, storageType>
