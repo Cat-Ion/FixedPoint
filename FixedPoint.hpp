@@ -729,5 +729,6 @@ namespace std {
 #include "MultiwordIntegerArithmetics.hpp"
 #include "MultiwordIntegerBitwise.hpp"
 #include "MultiwordIntegerCasts.hpp"
+#include "MultiwordIntegerComparisons.hpp"
 #include "MultiwordIntegerUtility.hpp"
 #endif // FIXEDPOINT_HPP

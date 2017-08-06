@@ -26,6 +26,19 @@ void MultiwordInteger<size, storageType>::fill_leading_bits(unsigned num) {
 }
 
 template<unsigned size, typename storageType> constexpr
+unsigned MultiwordInteger<size, storageType>::leading_zeros() const {
+    unsigned r = 0;
+    for (unsigned i = size; i-- > 0; ) {
+        if (s[i] == 0) {
+            r += storageSize;
+        } else {
+            return r + nlz(s[i]);
+        }
+    }
+    return r;
+}
+
+template<unsigned size, typename storageType> constexpr
 bool MultiwordInteger<size, storageType>::is_negative() const {
     return static_cast<signedType>(s[size-1]) < 0;
 }
