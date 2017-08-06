@@ -3,7 +3,7 @@ FixedPoint
 
 To use, get a compiler that supports C++14, then
 
-    #include <FixedPoint.hpp>
+    #include <FixedPoint/FixedPoint.hpp>
 
 Then declare some variables with an integer width, a fractional width, and
 optionally an unsigned storage type, which defaults to 32-bit ints. The integer
