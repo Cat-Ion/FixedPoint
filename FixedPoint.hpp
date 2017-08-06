@@ -204,48 +204,11 @@ public:
         return r;
     }
 
-    constexpr
-    MultiwordInteger<size, storageType>&
-    operator+=(MultiwordInteger<size, storageType> const &o) {
-        storageType c = 0;
-        for(unsigned i = 0; i < size; i++) {
-            bigType t = this->s[i] + o.s[i] + c;
-            this->s[i] = t;
-            c = t >> storageSize;
-        }
-        return *this;
-    }
-
-    constexpr
-    MultiwordInteger<size, storageType>&
-    operator-=(MultiwordInteger<size, storageType> const &o) {
-        bigType c = 0;
-        for (unsigned i = 0; i < size; i++) {
-            c += this->s[i];
-            c -= o.s[i];
-            this->s[i] = c;
-            c = (signedType)(c>>storageSize);
-        }
-        return *this;
-    }
-
-    template<unsigned otherSize>
-    constexpr
-    MultiwordInteger<size, storageType>&
-    operator*=(MultiwordInteger<otherSize, storageType> const &o) {
-        MultiwordInteger<size, storageType> nv;
-        mul<otherSize, size>(o, &nv);
-        *this = nv;
-        return *this;
-    }
-
-    template<unsigned otherSize>
-    constexpr
-    MultiwordInteger<size, storageType>&
-    operator/=(MultiwordInteger<otherSize, storageType> const &o) {
-        quotrem(o, *this, static_cast<MultiwordInteger<otherSize, storageType>*>(nullptr));
-        return *this;
-    }
+    constexpr MultiwordInteger<size, storageType>& operator+=(MultiwordInteger<size, storageType> const &o);
+    constexpr MultiwordInteger<size, storageType>& operator-=(MultiwordInteger<size, storageType> const &o);
+    template<unsigned otherSize> constexpr MultiwordInteger<size, storageType>& operator*=(MultiwordInteger<otherSize, storageType> const &o);
+    template<unsigned otherSize> constexpr MultiwordInteger<size, storageType>& operator/=(MultiwordInteger<otherSize, storageType> const &o);
+    constexpr MultiwordInteger<size, storageType>& operator%=(MultiwordInteger<size, storageType> const &o);
 
     constexpr
     MultiwordInteger<size, storageType>&
@@ -285,13 +248,6 @@ public:
         MultiwordInteger<size, storageType> r(*this);
         *this--;
         return r;
-    }
-
-    constexpr
-    MultiwordInteger<size, storageType>&
-    operator%=(MultiwordInteger<size, storageType> const &o) {
-        *this = *this % o;
-        return *this;
     }
 
     constexpr MultiwordInteger<size, storageType>&
@@ -1012,35 +968,6 @@ public:
 };
 
 template<unsigned size, typename storageType = uint32_t>
-constexpr MultiwordInteger<size, storageType>
-operator+ (MultiwordInteger<size, storageType> left,
-           MultiwordInteger<size, storageType> const &right) { return left += right; }
-
-template<unsigned size, typename storageType = uint32_t>
-constexpr MultiwordInteger<size, storageType>
-operator- (MultiwordInteger<size, storageType> left,
-           MultiwordInteger<size, storageType> const &right) { return left -= right; }
-
-template<unsigned leftSize, unsigned rightSize, typename storageType = uint32_t>
-constexpr MultiwordInteger<leftSize+rightSize, storageType>
-operator* (MultiwordInteger<leftSize, storageType> left,
-           MultiwordInteger<rightSize, storageType> const &right) { MultiwordInteger<leftSize+rightSize, storageType> out; left.mul(right, &out); return out; }
-
-template<unsigned leftSize, unsigned rightSize, typename storageType = uint32_t>
-constexpr MultiwordInteger<leftSize, storageType>
-operator/ (MultiwordInteger<leftSize, storageType> left,
-           MultiwordInteger<rightSize, storageType> const &right) { return left /= right; }
-
-template<unsigned leftSize, unsigned rightSize, typename storageType = uint32_t>
-constexpr MultiwordInteger<rightSize, storageType>
-operator% (MultiwordInteger<leftSize, storageType> left,
-           MultiwordInteger<rightSize, storageType> const &right) {
-    MultiwordInteger<leftSize, storageType> q;
-    MultiwordInteger<rightSize, storageType> r;
-    left.quotrem(right, q, &r);
-    return r; }
-
-template<unsigned size, typename storageType = uint32_t>
 constexpr bool
 operator>(MultiwordInteger<size, storageType> const &left,
           MultiwordInteger<size, storageType> const &right) { return right < left; }
@@ -1226,4 +1153,5 @@ namespace std {
     }
 }
 
+#include "MultiwordIntegerArithmetics.hpp"
 #endif // FIXEDPOINT_HPP
