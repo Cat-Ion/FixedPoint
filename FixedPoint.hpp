@@ -94,45 +94,10 @@ public:
     template<unsigned otherSize> constexpr MultiwordInteger<size, storageType>& operator/=(MultiwordInteger<otherSize, storageType> const &o);
     constexpr MultiwordInteger<size, storageType>& operator%=(MultiwordInteger<size, storageType> const &o);
 
-    constexpr
-    MultiwordInteger<size, storageType>&
-    operator++() {
-        bigType c = 1;
-        for (unsigned i = 0; i < size && c; i++) {
-            c += s[i];
-            s[i] = c;
-            c >>= storageSize;
-        }
-        return *this;
-    }
-
-    constexpr
-    MultiwordInteger<size, storageType>
-    operator++(int) {
-        MultiwordInteger<size, storageType> r(*this);
-        ++(*this);
-        return r;
-    }
-
-    constexpr
-    MultiwordInteger<size, storageType>&
-    operator--() {
-        bigType c = ~static_cast<bigType>(0);
-        for (unsigned i = 0; i < size && c; i++) {
-            c += s[i];
-            s[i] = c;
-            c >>= storageSize;
-        }
-        return *this;
-    }
-
-    constexpr
-    MultiwordInteger<size, storageType>&
-    operator--(int) {
-        MultiwordInteger<size, storageType> r(*this);
-        *this--;
-        return r;
-    }
+    constexpr MultiwordInteger<size, storageType>& operator++();
+    constexpr MultiwordInteger<size, storageType> operator++(int);
+    constexpr MultiwordInteger<size, storageType>& operator--();
+    constexpr MultiwordInteger<size, storageType>& operator--(int);
 
     constexpr MultiwordInteger<size, storageType>&
     operator &=(MultiwordInteger<size, storageType> const &o) {
