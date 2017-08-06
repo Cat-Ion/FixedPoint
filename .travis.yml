@@ -41,7 +41,7 @@ script:
 notifications:
   irc:
     channels:
-      - "irc.freenode.org#imaginaerraum"
+      #  - "irc.freenode.org#imaginaerraum"
     skip_join: true
     use_notice: true
     template:
