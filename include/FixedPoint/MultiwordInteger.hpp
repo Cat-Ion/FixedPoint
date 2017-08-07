@@ -8,20 +8,20 @@ template<> class make_bigger<uint8_t > { public: typedef uint16_t type; };
 template<> class make_bigger<uint16_t> { public: typedef uint32_t type; };
 template<> class make_bigger<uint32_t> { public: typedef uint64_t type; };
 
-template<typename T> unsigned nlz(T x);
-template<> unsigned nlz(unsigned long long x) {
+template<typename T> inline unsigned nlz(T x);
+template<> inline unsigned nlz(unsigned long long x) {
     return __builtin_clzll(x);
 }
-template<> unsigned nlz(unsigned long x) {
+template<> inline unsigned nlz(unsigned long x) {
     return __builtin_clzl(x);
 }
-template<> unsigned nlz(unsigned int x) {
+template<> inline unsigned nlz(unsigned int x) {
     return __builtin_clz(x);
 }
-template<> unsigned nlz(unsigned short x) {
+template<> inline unsigned nlz(unsigned short x) {
     return nlz<unsigned int>(x) - 8*(sizeof(unsigned int) - sizeof(unsigned short));
 }
-template<> unsigned nlz(unsigned char x) {
+template<> inline unsigned nlz(unsigned char x) {
     return nlz<unsigned int>(x) - 8*(sizeof(unsigned int) - sizeof(unsigned char));
 }
 
