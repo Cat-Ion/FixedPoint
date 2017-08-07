@@ -144,4 +144,5 @@ MultiwordInteger<size, storageType> MultiwordInteger<size, storageType>::minVal 
 #include "MultiwordIntegerCasts.hpp"
 #include "MultiwordIntegerComparisons.hpp"
 #include "MultiwordIntegerUtility.hpp"
+#include "MultiwordIntegerSpecialization.hpp"
 #endif // MULTIWORDINTEGER_HPP

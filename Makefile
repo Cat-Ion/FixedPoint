@@ -9,7 +9,7 @@ LDFLAGS = -lUnitTest++ -lgcov
 
 HEADERS = $(find -type f include)
 
-all: tests
+all: FixedPointTests
 
 FixedPointTests: FixedPointTests.o
 	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS)

@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <UnitTest++.h>
 #include "FixedPoint/FixedPoint.hpp"
+
 SUITE(MultiwordInteger) {
   TEST(zero_construction) {
     MultiwordInteger<4, uint16_t> a(int64_t(0));
@@ -418,42 +419,58 @@ SUITE(MultiwordInteger) {
 
     // Small value conversion
     a = 5.;
-    b = a; c = a; d = a; e = a; f = a; g = a; h = a; i = a; j = a;
-    CHECK_EQUAL(double(double(b)), double(double(a)));
-    CHECK_EQUAL(double(double(c)), double(double(a)));
-    CHECK_EQUAL(double(double(d)), double(double(a)));
-    CHECK_EQUAL(double(double(e)), double(double(a)));
-    CHECK_EQUAL(double(double(f)), double(double(a)));
-    CHECK_EQUAL(double(double(g)), double(double(a)));
-    CHECK_EQUAL(double(double(h)), double(double(a)));
-    CHECK_EQUAL(double(double(i)), double(double(a)));
-    CHECK_EQUAL(double(double(j)), double(double(a)));
+    b = a;
+    c = a;
+    d = a;
+    e = a;
+    f = a;
+    g = a;
+    h = a;
+    i = a;
+    j = a;
+    CHECK_EQUAL(double(b), double(a));
+    CHECK_EQUAL(double(c), double(a));
+    CHECK_EQUAL(double(d), double(a));
+    CHECK_EQUAL(double(e), double(a));
+    CHECK_EQUAL(double(f), double(a));
+    CHECK_EQUAL(double(g), double(a));
+    CHECK_EQUAL(double(h), double(a));
+    CHECK_EQUAL(double(i), double(a));
+    CHECK_EQUAL(double(j), double(a));
 
     // Larger value conversion
     a = 65536.;
     b = a; c = a; d = a; e = a; f = a; g = a; h = a; i = a; j = a;
-    CHECK_EQUAL(double(double(b)), double(double(a)));
-    CHECK_EQUAL(double(double(c)), double(double(a)));
-    CHECK_EQUAL(double(double(d)), double(double(a)));
-    CHECK_EQUAL(double(double(e)), double(double(a)));
-    CHECK_EQUAL(double(double(f)), double(double(a)));
-    CHECK_EQUAL(double(double(g)), double(double(a)));
-    CHECK_EQUAL(double(double(h)), double(double(a)));
-    CHECK_EQUAL(double(double(i)), double(double(a)));
-    CHECK_EQUAL(double(double(j)), double(double(a)));
+    CHECK_EQUAL(double(b), double(a));
+    CHECK_EQUAL(double(c), double(a));
+    CHECK_EQUAL(double(d), double(a));
+    CHECK_EQUAL(double(e), double(a));
+    CHECK_EQUAL(double(f), double(a));
+    CHECK_EQUAL(double(g), double(a));
+    CHECK_EQUAL(double(h), double(a));
+    CHECK_EQUAL(double(i), double(a));
+    CHECK_EQUAL(double(j), double(a));
 
     // Negative conversion
     a = -1.;
-    b = a; c = a; d = a; e = a; f = a; g = a; h = a; i = a; j = a;
-    CHECK_EQUAL(double(double(b)), double(double(a)));
-    CHECK_EQUAL(double(double(c)), double(double(a)));
-    CHECK_EQUAL(double(double(d)), double(double(a)));
-    CHECK_EQUAL(double(double(e)), double(double(a)));
-    CHECK_EQUAL(double(double(f)), double(double(a)));
-    CHECK_EQUAL(double(double(g)), double(double(a)));
-    CHECK_EQUAL(double(double(h)), double(double(a)));
-    CHECK_EQUAL(double(double(i)), double(double(a)));
-    CHECK_EQUAL(double(double(j)), double(double(a)));
+    b = a;
+    c = a;
+    d = a;
+    e = a;
+    f = a;
+    g = a;
+    h = a;
+    i = a;
+    j = a;
+    CHECK_EQUAL(double(b), double(a));
+    CHECK_EQUAL(double(c), double(a));
+    CHECK_EQUAL(double(d), double(a));
+    CHECK_EQUAL(double(e), double(a));
+    CHECK_EQUAL(double(f), double(a));
+    CHECK_EQUAL(double(g), double(a));
+    CHECK_EQUAL(double(h), double(a));
+    CHECK_EQUAL(double(i), double(a));
+    CHECK_EQUAL(double(j), double(a));
 
     // Overflow
     a = pow(2., 32.);
