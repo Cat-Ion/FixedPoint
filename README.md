@@ -34,5 +34,18 @@ will print
 
     5 / 6 = 0.833333
 
+Other than the standard arithmetic (`+`, `-`, `*`, `/`, `%` and their
+assignment equivalents) and comparison operators, the following functions
+are defined as well:
+
+    std::sin
+    std::cos
+    std::atan2
+    std::abs
+
+For the trigonometric functions, the results are at the moment only tested
+with an integral width of 3 and will probably return nonsensical results
+with smaller widths.
+
 For more examples, look at the provided tests in FixedPointTests.cpp
 
