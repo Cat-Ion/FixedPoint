@@ -61,6 +61,9 @@ SUITE(MultiwordInteger) {
     MultiwordInteger<3, uint8_t> c(int64_t(0xC0FFEE));
     a = c;
     CHECK_EQUAL(double(a), double(c));
+
+    MultiwordInteger<1, uint32_t> d = MultiwordInteger<2, uint8_t>(-5.);
+    CHECK_EQUAL(double(d), -5.);
   }
 
   TEST(limits) {
@@ -374,8 +377,10 @@ SUITE(MultiwordInteger) {
 
     a = 1.;
     // Test normal shift
+    b = 4.;
+    CHECK_EQUAL(double(a<<1), double(b>>1));
     a <<= 1;
-    b = 2.;
+    b >>= 1;
     CHECK_EQUAL(double(a), double(b));
 
     // Shift over boundary
@@ -429,8 +434,9 @@ SUITE(MultiwordInteger) {
     CHECK_EQUAL(double(a), double(b));
   }
 
-  TEST(bitwise) {
-      MultiwordInteger<4, uint8_t> a, b, c;
+  template<typename T>
+  void bitwise_perform() {
+      T a, b, c;
       a = int64_t(0xFFFFFFFF);
       b = int64_t(0xFFFFFFFF);
       c = int64_t(0);
@@ -445,6 +451,11 @@ SUITE(MultiwordInteger) {
 
       CHECK_EQUAL(double(~a), double(c));
       CHECK_EQUAL(double(~c), double(a));
+  }
+
+  TEST(bitwise) {
+      bitwise_perform<MultiwordInteger<1, uint32_t>>();
+      bitwise_perform<MultiwordInteger<2, uint16_t>>();
   }
 
   TEST(conversions) {
@@ -523,6 +534,23 @@ SUITE(MultiwordInteger) {
     CHECK(!b);
     CHECK(!e);
     CHECK(!h);
+  }
+
+  TEST(casts) {
+      MultiwordInteger<8, uint8_t> a(int64_t(0x1122334455667788));
+      MultiwordInteger<1, uint32_t> b(int64_t(0x55667788));
+
+      CHECK_EQUAL(double(a), double(int64_t(0x1122334455667788UL)));
+      CHECK_EQUAL(int64_t(a), int64_t(0x1122334455667788UL));
+      CHECK_EQUAL(int32_t(a), 0x55667788);
+      CHECK_EQUAL(int16_t(a), 0x7788);
+      CHECK_EQUAL(int8_t(a),  int8_t(0x88));
+
+      CHECK_EQUAL(double(b), double(int64_t(0x55667788UL)));
+      CHECK_EQUAL(int64_t(b), int64_t(0x55667788UL));
+      CHECK_EQUAL(int32_t(b), 0x55667788);
+      CHECK_EQUAL(int16_t(b), 0x7788);
+      CHECK_EQUAL(int8_t(b),  int8_t(0x88));
   }
 }
 
@@ -623,6 +651,8 @@ SUITE(FixedPoint) {
     c = 10.;
     CHECK_EQUAL(double(a * b), double(c));
     CHECK_EQUAL(double(b * a), double(c));
+
+    CHECK_EQUAL(double(b * 5), double(c));
   }
 
   TEST(division) {
@@ -637,6 +667,8 @@ SUITE(FixedPoint) {
     CHECK_EQUAL(double((a / (-c))), double(-b));
     CHECK_EQUAL(double(((-a) / (-b))), double(c));
     CHECK_EQUAL(double(((-a) / (-c))), double(b));
+    CHECK_EQUAL(double(a / 16), double(b));
+    CHECK_EQUAL(double(b % a), double(b));
 
     FixedPoint<4, 91, uint32_t> y32(-0.13779029068463858), x32(-0.99046142569665119);
     FixedPoint<4, 91, uint32_t> d32 = y32/x32;
@@ -675,6 +707,10 @@ SUITE(FixedPoint) {
     CHECK(a > b);
     CHECK(b <= a);
     CHECK(a >= b);
+
+    CHECK(T(1.).is_positive());
+    CHECK(! T(0.).is_positive());
+    CHECK(! T(-1.).is_positive());
   }
 
   TEST(comparison) {

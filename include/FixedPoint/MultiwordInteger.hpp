@@ -66,7 +66,9 @@ public:
     constexpr MultiwordInteger<size, storageType>& operator+=(MultiwordInteger<size, storageType> const &o);
     constexpr MultiwordInteger<size, storageType>& operator-=(MultiwordInteger<size, storageType> const &o);
     template<unsigned otherSize> constexpr MultiwordInteger<size, storageType>& operator*=(MultiwordInteger<otherSize, storageType> const &o);
+    constexpr MultiwordInteger<size, storageType>& operator*=(int64_t const &o);
     template<unsigned otherSize> constexpr MultiwordInteger<size, storageType>& operator/=(MultiwordInteger<otherSize, storageType> const &o);
+    constexpr MultiwordInteger<size, storageType>& operator/=(int64_t const &o);
     constexpr MultiwordInteger<size, storageType>& operator%=(MultiwordInteger<size, storageType> const &o);
 
     constexpr MultiwordInteger<size, storageType>& operator++();

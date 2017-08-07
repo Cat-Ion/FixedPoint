@@ -33,16 +33,25 @@ public:
         for (unsigned i = 0; i < otherSize && i * 8 * sizeof(otherStorageType) < storageSize; i++) {
             s[0] |= o.s[i] << (i * sizeof(otherStorageType) * 8);
         }
-        if (o.is_negative() && o.storageSize > storageSize) {
-            fill_leading_bits(unsigned(o.storageSize - storageSize));
+        if (o.is_negative() && o.storageSize < storageSize) {
+            fill_leading_bits(unsigned(storageSize - o.storageSize));
         }
     }
 
     constexpr MultiwordInteger<size, storageType>& operator+=(MultiwordInteger<size, storageType> const &o) { s[0] += o.s[0]; return *this;}
     constexpr MultiwordInteger<size, storageType>& operator-=(MultiwordInteger<size, storageType> const &o) { s[0] -= o.s[0]; return *this;}
     template<unsigned otherSize> constexpr MultiwordInteger<size, storageType>& operator*=(MultiwordInteger<otherSize, storageType> const &o) { s[0] *= o.s[0]; return *this; }
+    constexpr MultiwordInteger<size, storageType>& operator*=(int64_t const &o) { s[0] *= storageType(o); return *this; }
     template<unsigned otherSize> constexpr MultiwordInteger<size, storageType>& operator/=(MultiwordInteger<otherSize, storageType> const &o) { quotrem(o, *this, static_cast<MultiwordInteger<otherSize, storageType>*>(0)); return *this; }
-    constexpr MultiwordInteger<size, storageType>& operator%=(MultiwordInteger<size, storageType> const &o);
+    constexpr MultiwordInteger<size, storageType>& operator/=(int64_t const &o) { MultiwordInteger<size, storageType> div(o); quotrem(div, *this, static_cast<MultiwordInteger<size, storageType>*>(0)); return *this; }
+    constexpr MultiwordInteger<size, storageType>& operator%=(MultiwordInteger<size, storageType> const &o) {
+        *this = *this % o;
+        return *this; }
+    constexpr MultiwordInteger<size, storageType> operator%(MultiwordInteger<size, storageType> const &o) {
+        MultiwordInteger<size, storageType> q, r;
+        quotrem(o, q, &r);
+        return r;
+    }
 
     constexpr MultiwordInteger<size, storageType>& operator++() { s[0]++; return *this; }
     constexpr MultiwordInteger<size, storageType>  operator++(int) { MultiwordInteger<size, storageType> r(*this); ++*this; return r; }
