@@ -76,8 +76,18 @@ operator* (FixedPoint<integerWidth, minimumFractionalWidth, backingStorageType> 
 
 template<int integerWidth, unsigned minimumFractionalWidth, typename backingStorageType = uint32_t>
 constexpr FixedPoint<integerWidth, minimumFractionalWidth, backingStorageType>
+operator* (FixedPoint<integerWidth, minimumFractionalWidth, backingStorageType> left,
+           int64_t const &right) { return left *= right; }
+
+template<int integerWidth, unsigned minimumFractionalWidth, typename backingStorageType = uint32_t>
+constexpr FixedPoint<integerWidth, minimumFractionalWidth, backingStorageType>
 operator/ (FixedPoint<integerWidth, minimumFractionalWidth, backingStorageType> left,
            FixedPoint<integerWidth, minimumFractionalWidth, backingStorageType> const &right) { return left /= right; }
+
+template<int integerWidth, unsigned minimumFractionalWidth, typename backingStorageType = uint32_t>
+constexpr FixedPoint<integerWidth, minimumFractionalWidth, backingStorageType>
+operator/ (FixedPoint<integerWidth, minimumFractionalWidth, backingStorageType> left,
+           int64_t const &right) { return left /= right; }
 
 template<int integerWidth, unsigned minimumFractionalWidth, typename backingStorageType = uint32_t>
 constexpr FixedPoint<integerWidth, minimumFractionalWidth, backingStorageType>

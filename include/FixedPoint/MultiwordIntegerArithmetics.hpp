@@ -29,23 +29,56 @@ template<unsigned size, typename storageType> template<unsigned otherSize> const
     *this = nv;
     return *this;
 }
-template<unsigned size, typename storageType> template<unsigned otherSize> constexpr MultiwordInteger<size, storageType>& MultiwordInteger<size, storageType>::operator/=(MultiwordInteger<otherSize, storageType> const &o) {
+template<unsigned size, typename storageType> constexpr MultiwordInteger<size, storageType>& MultiwordInteger<size, storageType>::operator*=(int64_t const &o) {
+    MultiwordInteger<size, storageType> nv(o);
+    nv *= *this;
+    *this = nv;
+    return *this;
+}
+template<unsigned size, typename storageType> template<unsigned otherSize> constexpr MultiwordInteger<size, storageType>&
+MultiwordInteger<size, storageType>::operator/=(MultiwordInteger<otherSize, storageType> const &o) {
     quotrem(o, *this, static_cast<MultiwordInteger<otherSize, storageType>*>(nullptr));
     return *this;
 }
-template<unsigned size, typename storageType> constexpr MultiwordInteger<size, storageType>& MultiwordInteger<size, storageType>::operator%=(MultiwordInteger<size, storageType> const &o) { *this = *this % o; return *this; }
 
-template<unsigned size, typename storageType> constexpr MultiwordInteger<size, storageType> operator+ (MultiwordInteger<size, storageType> left, MultiwordInteger<size, storageType> const &right) { return left += right; }
-template<unsigned size, typename storageType> constexpr MultiwordInteger<size, storageType> operator- (MultiwordInteger<size, storageType> left, MultiwordInteger<size, storageType> const &right) { return left -= right; }
-template<unsigned size, typename storageType, unsigned otherSize> constexpr MultiwordInteger<size+otherSize, storageType> operator* (MultiwordInteger<size, storageType> left, MultiwordInteger<otherSize, storageType> const &right) { MultiwordInteger<size+otherSize, storageType> out; left.mul(right, &out); return out; }
-template<unsigned size, typename storageType, unsigned otherSize> constexpr MultiwordInteger<size, storageType> operator/ (MultiwordInteger<size, storageType> left, MultiwordInteger<otherSize, storageType> const &right) { return left /= right; }
-template<unsigned size, typename storageType, unsigned otherSize> constexpr MultiwordInteger<otherSize, storageType> operator% (MultiwordInteger<size, storageType> left, MultiwordInteger<otherSize, storageType> const &right) {
+template<unsigned size, typename storageType> constexpr MultiwordInteger<size, storageType>&
+MultiwordInteger<size, storageType>::operator%=(MultiwordInteger<size, storageType> const &o) { *this = *this % o; return *this; }
+
+
+template<unsigned size, typename storageType> constexpr MultiwordInteger<size, storageType>
+operator+ (MultiwordInteger<size, storageType> left, MultiwordInteger<size, storageType> const &right) { return left += right; }
+
+template<unsigned size, typename storageType> constexpr MultiwordInteger<size, storageType>
+operator- (MultiwordInteger<size, storageType> left, MultiwordInteger<size, storageType> const &right) { return left -= right; }
+
+template<unsigned size, typename storageType, unsigned otherSize> constexpr MultiwordInteger<size+otherSize, storageType>
+operator* (MultiwordInteger<size, storageType> left, MultiwordInteger<otherSize, storageType> const &right) {
+    MultiwordInteger<size+otherSize, storageType> out;
+    left.mul(right, &out);
+    return out; }
+
+template<unsigned size, typename storageType> constexpr MultiwordInteger<size+8/sizeof(storageType), storageType>
+operator* (MultiwordInteger<size, storageType> left, int64_t const &right) {
+    MultiwordInteger<size+8/sizeof(storageType), storageType> out(right);
+    out *= *left;
+    return out; }
+
+template<unsigned size, typename storageType, unsigned otherSize> constexpr MultiwordInteger<size, storageType>
+operator/ (MultiwordInteger<size, storageType> left, MultiwordInteger<otherSize, storageType> const &right) { return left /= right; }
+
+template<unsigned size, typename storageType> constexpr MultiwordInteger<size, storageType>
+operator/ (MultiwordInteger<size, storageType> left, int64_t const &right) { return left /= right; }
+
+template<unsigned size, typename storageType, unsigned otherSize> constexpr MultiwordInteger<otherSize, storageType>
+operator% (MultiwordInteger<size, storageType> left, MultiwordInteger<otherSize, storageType> const &right) {
     MultiwordInteger<size, storageType> q;
     MultiwordInteger<otherSize, storageType> r;
     left.quotrem(right, q, &r);
     return r; }
 
-template<unsigned size, typename storageType> constexpr MultiwordInteger<size, storageType>& MultiwordInteger<size, storageType>::operator++() {
+
+template<unsigned size, typename storageType> constexpr MultiwordInteger<size, storageType>&
+MultiwordInteger<size, storageType>::operator++() {
     bigType c = 1;
     for (unsigned i = 0; i < size && c; i++) {
         c += s[i];
@@ -54,12 +87,16 @@ template<unsigned size, typename storageType> constexpr MultiwordInteger<size, s
     }
     return *this;
 }
-template<unsigned size, typename storageType> constexpr MultiwordInteger<size, storageType> MultiwordInteger<size, storageType>::operator++(int) {
+
+template<unsigned size, typename storageType> constexpr MultiwordInteger<size, storageType>
+MultiwordInteger<size, storageType>::operator++(int) {
     MultiwordInteger<size, storageType> r(*this);
     ++(*this);
     return r;
 }
-template<unsigned size, typename storageType> constexpr MultiwordInteger<size, storageType>& MultiwordInteger<size, storageType>::operator--() {
+
+template<unsigned size, typename storageType> constexpr MultiwordInteger<size, storageType>&
+MultiwordInteger<size, storageType>::operator--() {
     bigType c = ~static_cast<bigType>(0);
     for (unsigned i = 0; i < size && c; i++) {
         c += s[i];
@@ -68,17 +105,22 @@ template<unsigned size, typename storageType> constexpr MultiwordInteger<size, s
     }
     return *this;
 }
-template<unsigned size, typename storageType> constexpr MultiwordInteger<size, storageType>& MultiwordInteger<size, storageType>::operator--(int) {
+
+template<unsigned size, typename storageType> constexpr MultiwordInteger<size, storageType>
+MultiwordInteger<size, storageType>::operator--(int) {
     MultiwordInteger<size, storageType> r(*this);
-    *this--;
+    --(*this);
     return r;
 }
 
-template<unsigned size, typename storageType> constexpr MultiwordInteger<size, storageType> MultiwordInteger<size, storageType>::operator- () const {
+
+template<unsigned size, typename storageType> constexpr MultiwordInteger<size, storageType>
+MultiwordInteger<size, storageType>::operator- () const {
     MultiwordInteger<size, storageType> r(*this);
     r.negate();
     return r;
 }
+
 
 template<unsigned size, typename storageType>
 template<unsigned otherSize, unsigned outSize>

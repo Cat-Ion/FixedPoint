@@ -66,13 +66,15 @@ public:
     constexpr MultiwordInteger<size, storageType>& operator+=(MultiwordInteger<size, storageType> const &o);
     constexpr MultiwordInteger<size, storageType>& operator-=(MultiwordInteger<size, storageType> const &o);
     template<unsigned otherSize> constexpr MultiwordInteger<size, storageType>& operator*=(MultiwordInteger<otherSize, storageType> const &o);
+    constexpr MultiwordInteger<size, storageType>& operator*=(int64_t const &o);
     template<unsigned otherSize> constexpr MultiwordInteger<size, storageType>& operator/=(MultiwordInteger<otherSize, storageType> const &o);
+    constexpr MultiwordInteger<size, storageType>& operator/=(int64_t const &o);
     constexpr MultiwordInteger<size, storageType>& operator%=(MultiwordInteger<size, storageType> const &o);
 
     constexpr MultiwordInteger<size, storageType>& operator++();
     constexpr MultiwordInteger<size, storageType>  operator++(int);
     constexpr MultiwordInteger<size, storageType>& operator--();
-    constexpr MultiwordInteger<size, storageType>& operator--(int);
+    constexpr MultiwordInteger<size, storageType>  operator--(int);
 
     constexpr MultiwordInteger<size, storageType> operator-() const;
 
@@ -144,4 +146,5 @@ MultiwordInteger<size, storageType> MultiwordInteger<size, storageType>::minVal 
 #include "MultiwordIntegerCasts.hpp"
 #include "MultiwordIntegerComparisons.hpp"
 #include "MultiwordIntegerUtility.hpp"
+#include "MultiwordIntegerSpecialization.hpp"
 #endif // MULTIWORDINTEGER_HPP

@@ -18,7 +18,8 @@ template<unsigned size, typename storageType> constexpr MultiwordInteger<size, s
 template<unsigned size, typename storageType> constexpr MultiwordInteger<size, storageType>::operator int16_t() const {
     int16_t r = 0;
     for (unsigned i = 0, j = 0; i < 16; i += storageSize) {
-        r |= s[j++] << i;
+        int16_t v = s[j++];
+        r |= v << i;
     }
     return r;
 }
@@ -26,7 +27,8 @@ template<unsigned size, typename storageType> constexpr MultiwordInteger<size, s
 template<unsigned size, typename storageType> constexpr MultiwordInteger<size, storageType>::operator int32_t() const {
     int32_t r = 0;
     for (unsigned i = 0, j = 0; i < 32; i += storageSize) {
-        r |= s[j++] << i;
+        int32_t v = s[j++];
+        r |= v << i;
     }
     return r;
 }
@@ -34,7 +36,8 @@ template<unsigned size, typename storageType> constexpr MultiwordInteger<size, s
 template<unsigned size, typename storageType> constexpr MultiwordInteger<size, storageType>::operator int64_t() const {
     int64_t r = 0;
     for (unsigned i = 0, j = 0; i < 64; i += storageSize) {
-        r |= s[j++] << i;
+        int64_t v = s[j++];
+        r |= v << i;
     }
     return r;
 }

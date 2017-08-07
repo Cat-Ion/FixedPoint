@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <UnitTest++.h>
 #include "FixedPoint/FixedPoint.hpp"
+
 SUITE(MultiwordInteger) {
   TEST(zero_construction) {
     MultiwordInteger<4, uint16_t> a(int64_t(0));
@@ -60,6 +61,9 @@ SUITE(MultiwordInteger) {
     MultiwordInteger<3, uint8_t> c(int64_t(0xC0FFEE));
     a = c;
     CHECK_EQUAL(double(a), double(c));
+
+    MultiwordInteger<1, uint32_t> d = MultiwordInteger<2, uint8_t>(-5.);
+    CHECK_EQUAL(double(d), -5.);
   }
 
   TEST(limits) {
@@ -73,40 +77,62 @@ SUITE(MultiwordInteger) {
     CHECK_EQUAL(double(a), double(maxv));
   }
 
+  template<typename T>
+  void addition_perform() {
+      T a(0.), b(1.), c(-1.), d(2.);
+
+      // Adding zero
+      CHECK_EQUAL(double(a+b), double(b));
+
+      // Basic addition
+      CHECK_EQUAL(double(b+b), double(d));
+
+      // Adding with overflow
+      CHECK_EQUAL(double(a+b+c), double(a));
+
+      // Commutativity
+      CHECK_EQUAL(double(b+d), double(d+b));
+
+      b = 0.;
+      CHECK_EQUAL(double(a++), double(b));
+      CHECK_EQUAL(double(++a), double(d));
+  }
+
   TEST(addition) {
-    MultiwordInteger<2, uint16_t> a(0.), b(1.), c(-1.), d(2.);
+      addition_perform<MultiwordInteger<2, uint16_t>>();
+      addition_perform<MultiwordInteger<1, uint16_t>>();
+  }
 
-    // Adding zero
-    CHECK_EQUAL(double(a+b), double(b));
+  template<typename T>
+  void subtraction_perform() {
+      T a(0.), b(1.), c(-1.), d(3.);
 
-    // Basic addition
-    CHECK_EQUAL(double(b+b), double(d));
+      // Subtracting from zero should yield negative
+      CHECK_EQUAL(double(a-b), double(c));
 
-    // Adding with overflow
-    CHECK_EQUAL(double(a+b+c), double(a));
+      // Subtracting itself should yield zero
+      CHECK_EQUAL(double(b-b), double(a));
 
-    // Commutativity
-    CHECK_EQUAL(double(b+d), double(d+b));
+      // Basic subtraction
+      CHECK_EQUAL(double(d-b-b), double(b));
+
+      // Anticommutativity
+      CHECK_EQUAL(double(a-b), double(a-(b-a)));
+
+      d = 2.;
+      c = 2.;
+      CHECK_EQUAL(double(d--), double(c));
+      CHECK_EQUAL(double(--d), double(a));
   }
 
   TEST(subtraction) {
-    MultiwordInteger<2, uint16_t> a(0.), b(1.), c(-1.), d(3.);
-
-    // Subtracting from zero should yield negative
-    CHECK_EQUAL(double(a-b), double(c));
-
-    // Subtracting itself should yield zero
-    CHECK_EQUAL(double(b-b), double(a));
-
-    // Basic subtraction
-    CHECK_EQUAL(double(d-b-b), double(b));
-
-    // Anticommutativity
-    CHECK_EQUAL(double(a-b), double(a-(b-a)));
+      subtraction_perform<MultiwordInteger<2, uint16_t>>();
+      subtraction_perform<MultiwordInteger<1, uint16_t>>();
   }
 
-  TEST(negation) {
-    MultiwordInteger<2, uint16_t> a(1.), b(-1.), c(-1.);
+  template<typename T>
+  void negation_perform() {
+    T a(1.), b(-1.), c(-1.);
 
     CHECK_EQUAL(double(a), double(-b));
 
@@ -114,8 +140,14 @@ SUITE(MultiwordInteger) {
     CHECK_EQUAL(double(a), double(c));
   }
 
-  TEST(multiplication) {
-    MultiwordInteger<2, uint16_t> a(0.), b(1.), c(-1.), d(2.);
+  TEST(negation) {
+      negation_perform<MultiwordInteger<2, uint16_t>>();
+      negation_perform<MultiwordInteger<1, uint16_t>>();
+  }
+
+  template<typename T>
+  void multiplication_perform() {
+    T a(0.), b(1.), c(-1.), d(2.);
 
     // Multiplying with zero yields zero
     CHECK_EQUAL(double(a*d), double(a));
@@ -130,18 +162,24 @@ SUITE(MultiwordInteger) {
     CHECK_EQUAL(double(c*d), double(d*c));
 
     // Results out of range of the smaller type should still work in the resulting type
-    b = double(0x10000);
-    MultiwordInteger<4, uint16_t> e(double(0x100000000));
+    b = pow(2., T::numWords * T::storageSize - 2.);
+    MultiwordInteger<T::numWords*2, typename T::storageType> e(pow(2., 2*T::numWords*T::storageSize-4.));
     CHECK_EQUAL(double(b*b), double(e));
 
     // But overflow when assigned to a smaller type
-    MultiwordInteger<2, uint16_t> f(b);
+    T f(b);
     f *= b;
     CHECK_EQUAL(double(f), double(a));
   }
 
-  TEST(division) {
-    MultiwordInteger<2, uint16_t> a(1.), b(2.), c, d, zero(0.), unity(1.);
+  TEST(multiplication) {
+      multiplication_perform<MultiwordInteger<2, uint16_t>>();
+      multiplication_perform<MultiwordInteger<1, uint16_t>>();
+  }
+
+  template<typename T>
+  void division_perform() {
+    T a(1.), b(2.), c, d, zero(0.), unity(1.);
 
     // Dividing by larger values yields zero for positive values, -1 for negative values
     CHECK_EQUAL(double(a/b), double(zero));
@@ -153,12 +191,16 @@ SUITE(MultiwordInteger) {
     // x/x == 1
     CHECK_EQUAL(double(b/b), double(unity));
 
-    // Test again, for larger values
-    a = 65536.*5;
-    b = 65536.;
-    CHECK_EQUAL(double(a/a), double(unity));
+    if (T::numWords > 1) {
+        // Test again, for larger values
+        a = pow(2., double(T::storageSize))*5;
+        b = pow(2., double(T::storageSize));
+        CHECK_EQUAL(double(a/a), double(unity));
+    }
 
     // If there is no remainder, a/b == c <-> a/c == b
+    a = 5.;
+    b = 1.;
     c = 5.;
     CHECK_EQUAL(double(a/b), double(c));
     CHECK_EQUAL(double(a/c), double(b));
@@ -175,26 +217,43 @@ SUITE(MultiwordInteger) {
     CHECK_EQUAL(double(-a/b), double(-c));
     CHECK_EQUAL(double(-a/c), double(-b));
 
-    // And for large values
-    a = 5*65536.;
-    b = 3*65536.;
-    c = 1.;
-    d = 2.;
-    CHECK_EQUAL(double(a/-b), double(-d));
-    CHECK_EQUAL(double((-a)/b), double(-d));
-    CHECK_EQUAL(double((-a)/(-b)), double(c));
+    if (T::numWords > 1) {
+        // And for large values
+        a = 5*pow(2., T::storageSize);
+        b = 3*pow(2., T::storageSize);
+        c = 1.;
+        d = 2.;
+        CHECK_EQUAL(double(a/-b), double(-d));
+        CHECK_EQUAL(double((-a)/b), double(-d));
+        CHECK_EQUAL(double((-a)/(-b)), double(c));
+    }
 
     // Division by zero
     a = 1.;
     b = 0.;
-    c = MultiwordInteger<2, uint16_t>::maxVal;
-    d = MultiwordInteger<2, uint16_t>::minVal;
+    c = T::_maxVal();
+    d = T::_minVal();
     CHECK_EQUAL(double(a/b), double(c));
     CHECK_EQUAL(double((-a)/b), double(d));
   }
 
-  TEST(modulo) {
-    MultiwordInteger<2, uint16_t> a, b, c, d, e;
+  TEST(division) {
+      division_perform<MultiwordInteger<2, uint16_t>>();
+      division_perform<MultiwordInteger<1, uint32_t>>();
+
+      MultiwordInteger<1, uint32_t> a;
+      MultiwordInteger<2, uint32_t> b;
+
+      a = 1.;
+      b = 2.;
+      CHECK_EQUAL(double(a/b), 0.);
+      CHECK_EQUAL(double((-a)/b), -1);
+      CHECK_EQUAL(double(a/(-b)), 0.);
+  }
+
+  template<typename T>
+  void modulo_perform() {
+    T a, b, c, d, e;
 
     // Without remainder, positive and negative
     a = 5.;
@@ -287,6 +346,20 @@ SUITE(MultiwordInteger) {
     CHECK_EQUAL(double(e), double(b));
   }
 
+  TEST(modulo) {
+      modulo_perform<MultiwordInteger<2, uint16_t>>();
+      modulo_perform<MultiwordInteger<1, uint32_t>>();
+
+      MultiwordInteger<1, uint32_t> a;
+      MultiwordInteger<2, uint32_t> b;
+
+      a = 1.;
+      b = 2.;
+      CHECK_EQUAL(double(a%b), 1.);
+      CHECK_EQUAL(double((-a)%b), 1.);
+      CHECK_EQUAL(double(a%(-b)), 1.);
+  }
+
   TEST(comparison) {
     MultiwordInteger<2, uint16_t> a, b;
 
@@ -310,8 +383,9 @@ SUITE(MultiwordInteger) {
     CHECK(b < a);
   }
 
-  TEST(shifts) {
-    MultiwordInteger<2, uint16_t> a = 65536., b = 0., c;
+  template<typename T>
+  void shifts_perform() {
+    T a = 65536., b = 0., c;
 
     // Test shifting all bits out, when positive
     a >>= 17;
@@ -328,8 +402,10 @@ SUITE(MultiwordInteger) {
 
     a = 1.;
     // Test normal shift
+    b = 4.;
+    CHECK_EQUAL(double(a<<1), double(b>>1));
     a <<= 1;
-    b = 2.;
+    b >>= 1;
     CHECK_EQUAL(double(a), double(b));
 
     // Shift over boundary
@@ -351,7 +427,7 @@ SUITE(MultiwordInteger) {
 
     // Result should be negative
     a <<= 31;
-    b = MultiwordInteger<2, uint16_t>::minVal;
+    b = T::minVal;
     CHECK_EQUAL(double(a), double(b));
 
     // Result should be sign extended, and negative
@@ -382,9 +458,14 @@ SUITE(MultiwordInteger) {
     b = -1.;
     CHECK_EQUAL(double(a), double(b));
   }
+  TEST(shifts) {
+      shifts_perform<MultiwordInteger<2, uint16_t>>();
+      shifts_perform<MultiwordInteger<1, uint32_t>>();
+  }
 
-  TEST(bitwise) {
-      MultiwordInteger<4, uint8_t> a, b, c;
+  template<typename T>
+  void bitwise_perform() {
+      T a, b, c;
       a = int64_t(0xFFFFFFFF);
       b = int64_t(0xFFFFFFFF);
       c = int64_t(0);
@@ -399,6 +480,11 @@ SUITE(MultiwordInteger) {
 
       CHECK_EQUAL(double(~a), double(c));
       CHECK_EQUAL(double(~c), double(a));
+  }
+
+  TEST(bitwise) {
+      bitwise_perform<MultiwordInteger<1, uint32_t>>();
+      bitwise_perform<MultiwordInteger<2, uint16_t>>();
   }
 
   TEST(conversions) {
@@ -418,42 +504,58 @@ SUITE(MultiwordInteger) {
 
     // Small value conversion
     a = 5.;
-    b = a; c = a; d = a; e = a; f = a; g = a; h = a; i = a; j = a;
-    CHECK_EQUAL(double(double(b)), double(double(a)));
-    CHECK_EQUAL(double(double(c)), double(double(a)));
-    CHECK_EQUAL(double(double(d)), double(double(a)));
-    CHECK_EQUAL(double(double(e)), double(double(a)));
-    CHECK_EQUAL(double(double(f)), double(double(a)));
-    CHECK_EQUAL(double(double(g)), double(double(a)));
-    CHECK_EQUAL(double(double(h)), double(double(a)));
-    CHECK_EQUAL(double(double(i)), double(double(a)));
-    CHECK_EQUAL(double(double(j)), double(double(a)));
+    b = a;
+    c = a;
+    d = a;
+    e = a;
+    f = a;
+    g = a;
+    h = a;
+    i = a;
+    j = a;
+    CHECK_EQUAL(double(b), double(a));
+    CHECK_EQUAL(double(c), double(a));
+    CHECK_EQUAL(double(d), double(a));
+    CHECK_EQUAL(double(e), double(a));
+    CHECK_EQUAL(double(f), double(a));
+    CHECK_EQUAL(double(g), double(a));
+    CHECK_EQUAL(double(h), double(a));
+    CHECK_EQUAL(double(i), double(a));
+    CHECK_EQUAL(double(j), double(a));
 
     // Larger value conversion
     a = 65536.;
     b = a; c = a; d = a; e = a; f = a; g = a; h = a; i = a; j = a;
-    CHECK_EQUAL(double(double(b)), double(double(a)));
-    CHECK_EQUAL(double(double(c)), double(double(a)));
-    CHECK_EQUAL(double(double(d)), double(double(a)));
-    CHECK_EQUAL(double(double(e)), double(double(a)));
-    CHECK_EQUAL(double(double(f)), double(double(a)));
-    CHECK_EQUAL(double(double(g)), double(double(a)));
-    CHECK_EQUAL(double(double(h)), double(double(a)));
-    CHECK_EQUAL(double(double(i)), double(double(a)));
-    CHECK_EQUAL(double(double(j)), double(double(a)));
+    CHECK_EQUAL(double(b), double(a));
+    CHECK_EQUAL(double(c), double(a));
+    CHECK_EQUAL(double(d), double(a));
+    CHECK_EQUAL(double(e), double(a));
+    CHECK_EQUAL(double(f), double(a));
+    CHECK_EQUAL(double(g), double(a));
+    CHECK_EQUAL(double(h), double(a));
+    CHECK_EQUAL(double(i), double(a));
+    CHECK_EQUAL(double(j), double(a));
 
     // Negative conversion
     a = -1.;
-    b = a; c = a; d = a; e = a; f = a; g = a; h = a; i = a; j = a;
-    CHECK_EQUAL(double(double(b)), double(double(a)));
-    CHECK_EQUAL(double(double(c)), double(double(a)));
-    CHECK_EQUAL(double(double(d)), double(double(a)));
-    CHECK_EQUAL(double(double(e)), double(double(a)));
-    CHECK_EQUAL(double(double(f)), double(double(a)));
-    CHECK_EQUAL(double(double(g)), double(double(a)));
-    CHECK_EQUAL(double(double(h)), double(double(a)));
-    CHECK_EQUAL(double(double(i)), double(double(a)));
-    CHECK_EQUAL(double(double(j)), double(double(a)));
+    b = a;
+    c = a;
+    d = a;
+    e = a;
+    f = a;
+    g = a;
+    h = a;
+    i = a;
+    j = a;
+    CHECK_EQUAL(double(b), double(a));
+    CHECK_EQUAL(double(c), double(a));
+    CHECK_EQUAL(double(d), double(a));
+    CHECK_EQUAL(double(e), double(a));
+    CHECK_EQUAL(double(f), double(a));
+    CHECK_EQUAL(double(g), double(a));
+    CHECK_EQUAL(double(h), double(a));
+    CHECK_EQUAL(double(i), double(a));
+    CHECK_EQUAL(double(j), double(a));
 
     // Overflow
     a = pow(2., 32.);
@@ -461,6 +563,23 @@ SUITE(MultiwordInteger) {
     CHECK(!b);
     CHECK(!e);
     CHECK(!h);
+  }
+
+  TEST(casts) {
+      MultiwordInteger<8, uint8_t> a(int64_t(0x1122334455667788));
+      MultiwordInteger<1, uint32_t> b(int64_t(0x55667788));
+
+      CHECK_EQUAL(double(a), double(int64_t(0x1122334455667788UL)));
+      CHECK_EQUAL(int64_t(a), int64_t(0x1122334455667788UL));
+      CHECK_EQUAL(int32_t(a), 0x55667788);
+      CHECK_EQUAL(int16_t(a), 0x7788);
+      CHECK_EQUAL(int8_t(a),  int8_t(0x88));
+
+      CHECK_EQUAL(double(b), double(int64_t(0x55667788UL)));
+      CHECK_EQUAL(int64_t(b), int64_t(0x55667788UL));
+      CHECK_EQUAL(int32_t(b), 0x55667788);
+      CHECK_EQUAL(int16_t(b), 0x7788);
+      CHECK_EQUAL(int8_t(b),  int8_t(0x88));
   }
 }
 
@@ -561,6 +680,8 @@ SUITE(FixedPoint) {
     c = 10.;
     CHECK_EQUAL(double(a * b), double(c));
     CHECK_EQUAL(double(b * a), double(c));
+
+    CHECK_EQUAL(double(b * 5), double(c));
   }
 
   TEST(division) {
@@ -575,6 +696,8 @@ SUITE(FixedPoint) {
     CHECK_EQUAL(double((a / (-c))), double(-b));
     CHECK_EQUAL(double(((-a) / (-b))), double(c));
     CHECK_EQUAL(double(((-a) / (-c))), double(b));
+    CHECK_EQUAL(double(a / 16), double(b));
+    CHECK_EQUAL(double(b % a), double(b));
 
     FixedPoint<4, 91, uint32_t> y32(-0.13779029068463858), x32(-0.99046142569665119);
     FixedPoint<4, 91, uint32_t> d32 = y32/x32;
@@ -613,6 +736,10 @@ SUITE(FixedPoint) {
     CHECK(a > b);
     CHECK(b <= a);
     CHECK(a >= b);
+
+    CHECK(T(1.).is_positive());
+    CHECK(! T(0.).is_positive());
+    CHECK(! T(-1.).is_positive());
   }
 
   TEST(comparison) {
