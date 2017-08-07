@@ -9,29 +9,20 @@ template<> class make_bigger<uint16_t> { public: typedef uint32_t type; };
 template<> class make_bigger<uint32_t> { public: typedef uint64_t type; };
 
 template<typename T> unsigned nlz(T x);
-template<> unsigned nlz(uint32_t x) {
-    unsigned r = 0;
-    if (x <= 0x0000FFFF) { r += 16; x <<= 16; }
-    if (x <= 0x00FFFFFF) { r +=  8; x <<=  8; }
-    if (x <= 0x0FFFFFFF) { r +=  4; x <<=  4; }
-    if (x <= 0x3FFFFFFF) { r +=  2; x <<=  2; }
-    if (x <= 0x7FFFFFFF) { r +=  1; }
-    return r;
+template<> unsigned nlz(unsigned long long x) {
+    return __builtin_clzll(x);
 }
-template<> unsigned nlz(uint16_t x) {
-    unsigned r = 0;
-    if (x <= 0x00FF) { r +=  8; x <<=  8; }
-    if (x <= 0x0FFF) { r +=  4; x <<=  4; }
-    if (x <= 0x3FFF) { r +=  2; x <<=  2; }
-    if (x <= 0x7FFF) { r +=  1; }
-    return r;
+template<> unsigned nlz(unsigned long x) {
+    return __builtin_clzl(x);
 }
-template<> unsigned nlz(uint8_t x) {
-    unsigned r = 0;
-    if (x <= 0x0F) { r +=  4; x <<=  4; }
-    if (x <= 0x3F) { r +=  2; x <<=  2; }
-    if (x <= 0x7F) { r +=  1; }
-    return r;
+template<> unsigned nlz(unsigned int x) {
+    return __builtin_clz(x);
+}
+template<> unsigned nlz(unsigned short x) {
+    return nlz<unsigned int>(x) - 8*(sizeof(unsigned int) - sizeof(unsigned short));
+}
+template<> unsigned nlz(unsigned char x) {
+    return nlz<unsigned int>(x) - 8*(sizeof(unsigned int) - sizeof(unsigned char));
 }
 
 template<unsigned size, typename _storageType = uint32_t>
