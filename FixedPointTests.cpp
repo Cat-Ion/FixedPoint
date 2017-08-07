@@ -239,7 +239,16 @@ SUITE(MultiwordInteger) {
 
   TEST(division) {
       division_perform<MultiwordInteger<2, uint16_t>>();
-      division_perform<MultiwordInteger<1, uint16_t>>();
+      division_perform<MultiwordInteger<1, uint32_t>>();
+
+      MultiwordInteger<1, uint32_t> a;
+      MultiwordInteger<2, uint32_t> b;
+
+      a = 1.;
+      b = 2.;
+      CHECK_EQUAL(double(a/b), 0.);
+      CHECK_EQUAL(double((-a)/b), -1);
+      CHECK_EQUAL(double(a/(-b)), 0.);
   }
 
   template<typename T>
@@ -340,6 +349,15 @@ SUITE(MultiwordInteger) {
   TEST(modulo) {
       modulo_perform<MultiwordInteger<2, uint16_t>>();
       modulo_perform<MultiwordInteger<1, uint32_t>>();
+
+      MultiwordInteger<1, uint32_t> a;
+      MultiwordInteger<2, uint32_t> b;
+
+      a = 1.;
+      b = 2.;
+      CHECK_EQUAL(double(a%b), 1.);
+      CHECK_EQUAL(double((-a)%b), 1.);
+      CHECK_EQUAL(double(a%(-b)), 1.);
   }
 
   TEST(comparison) {
