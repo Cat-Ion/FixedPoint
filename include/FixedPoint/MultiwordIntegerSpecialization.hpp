@@ -40,8 +40,8 @@ public:
 
     constexpr MultiwordInteger<size, storageType>& operator+=(MultiwordInteger<size, storageType> const &o) { s[0] += o.s[0]; return *this;}
     constexpr MultiwordInteger<size, storageType>& operator-=(MultiwordInteger<size, storageType> const &o) { s[0] -= o.s[0]; return *this;}
-    template<unsigned otherSize> constexpr MultiwordInteger<size, storageType>& operator*=(MultiwordInteger<otherSize, storageType> const &o);
-    template<unsigned otherSize> constexpr MultiwordInteger<size, storageType>& operator/=(MultiwordInteger<otherSize, storageType> const &o);
+    template<unsigned otherSize> constexpr MultiwordInteger<size, storageType>& operator*=(MultiwordInteger<otherSize, storageType> const &o) { s[0] *= o.s[0]; return *this; }
+    template<unsigned otherSize> constexpr MultiwordInteger<size, storageType>& operator/=(MultiwordInteger<otherSize, storageType> const &o) { quotrem(o, *this, static_cast<MultiwordInteger<otherSize, storageType>*>(0)); return *this; }
     constexpr MultiwordInteger<size, storageType>& operator%=(MultiwordInteger<size, storageType> const &o);
 
     constexpr MultiwordInteger<size, storageType>& operator++() { s[0]++; return *this; }
@@ -95,16 +95,45 @@ public:
     quotrem(MultiwordInteger<otherSize, storageType> divisor,
             MultiwordInteger<size,      storageType> &quotient,
             MultiwordInteger<otherSize, storageType> *remainder) const {
-        if (otherSize > 1 && divisor.nabs() < MultiwordInteger<otherSize, storageType>(s[0]).nabs()) {
+
+        if (divisor == MultiwordInteger<otherSize, storageType>(storageType(0))) {
+            if (signedType(s[0]) < 0) {
+                quotient = _minVal();
+            } else {
+                quotient = _maxVal();
+            }
+            if (remainder) {
+                *remainder = storageType(0);
+            }
+            return;
+        }
+
+        if (otherSize > 1 && divisor.leading_zeros() <= (divisor.numWords * divisor.storageSize - storageSize)) {
             quotient = storageType(0);
             if (remainder) {
                 *remainder = s[0];
             }
         } else {
+            signedType s0 = s[0];
             quotient = MultiwordInteger<size, storageType>(storageType(signedType(s[0])/signedType(divisor.s[0])));
-            if (remainder) {
-                *remainder = MultiwordInteger<otherSize, storageType>(storageType(signedType(s[0])%signedType(divisor.s[0])));
+            if (signedType(s0 ^ divisor.s[0]) < 0 && (s0 % signedType(divisor.s[0])) != 0) {
+                --quotient;
+                if (remainder) {
+                    *remainder = MultiwordInteger<otherSize, storageType>(storageType(s0 - quotient.s[0]*divisor.s[0]));
+                }
+            } else {
+                if (remainder) {
+                    *remainder = MultiwordInteger<otherSize, storageType>(storageType(s0 % signedType(divisor.s[0])));
+                }
             }
+        }
+    }
+
+    MultiwordInteger<size, storageType> nabs() const {
+        if (is_positive()) {
+            return -*this;
+        } else {
+            return *this;
         }
     }
 };

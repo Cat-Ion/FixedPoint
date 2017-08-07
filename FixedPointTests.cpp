@@ -74,40 +74,62 @@ SUITE(MultiwordInteger) {
     CHECK_EQUAL(double(a), double(maxv));
   }
 
+  template<typename T>
+  void addition_perform() {
+      T a(0.), b(1.), c(-1.), d(2.);
+
+      // Adding zero
+      CHECK_EQUAL(double(a+b), double(b));
+
+      // Basic addition
+      CHECK_EQUAL(double(b+b), double(d));
+
+      // Adding with overflow
+      CHECK_EQUAL(double(a+b+c), double(a));
+
+      // Commutativity
+      CHECK_EQUAL(double(b+d), double(d+b));
+
+      b = 0.;
+      CHECK_EQUAL(double(a++), double(b));
+      CHECK_EQUAL(double(++a), double(d));
+  }
+
   TEST(addition) {
-    MultiwordInteger<2, uint16_t> a(0.), b(1.), c(-1.), d(2.);
+      addition_perform<MultiwordInteger<2, uint16_t>>();
+      addition_perform<MultiwordInteger<1, uint16_t>>();
+  }
 
-    // Adding zero
-    CHECK_EQUAL(double(a+b), double(b));
+  template<typename T>
+  void subtraction_perform() {
+      T a(0.), b(1.), c(-1.), d(3.);
 
-    // Basic addition
-    CHECK_EQUAL(double(b+b), double(d));
+      // Subtracting from zero should yield negative
+      CHECK_EQUAL(double(a-b), double(c));
 
-    // Adding with overflow
-    CHECK_EQUAL(double(a+b+c), double(a));
+      // Subtracting itself should yield zero
+      CHECK_EQUAL(double(b-b), double(a));
 
-    // Commutativity
-    CHECK_EQUAL(double(b+d), double(d+b));
+      // Basic subtraction
+      CHECK_EQUAL(double(d-b-b), double(b));
+
+      // Anticommutativity
+      CHECK_EQUAL(double(a-b), double(a-(b-a)));
+
+      d = 2.;
+      c = 2.;
+      CHECK_EQUAL(double(d--), double(c));
+      CHECK_EQUAL(double(--d), double(a));
   }
 
   TEST(subtraction) {
-    MultiwordInteger<2, uint16_t> a(0.), b(1.), c(-1.), d(3.);
-
-    // Subtracting from zero should yield negative
-    CHECK_EQUAL(double(a-b), double(c));
-
-    // Subtracting itself should yield zero
-    CHECK_EQUAL(double(b-b), double(a));
-
-    // Basic subtraction
-    CHECK_EQUAL(double(d-b-b), double(b));
-
-    // Anticommutativity
-    CHECK_EQUAL(double(a-b), double(a-(b-a)));
+      subtraction_perform<MultiwordInteger<2, uint16_t>>();
+      subtraction_perform<MultiwordInteger<1, uint16_t>>();
   }
 
-  TEST(negation) {
-    MultiwordInteger<2, uint16_t> a(1.), b(-1.), c(-1.);
+  template<typename T>
+  void negation_perform() {
+    T a(1.), b(-1.), c(-1.);
 
     CHECK_EQUAL(double(a), double(-b));
 
@@ -115,8 +137,14 @@ SUITE(MultiwordInteger) {
     CHECK_EQUAL(double(a), double(c));
   }
 
-  TEST(multiplication) {
-    MultiwordInteger<2, uint16_t> a(0.), b(1.), c(-1.), d(2.);
+  TEST(negation) {
+      negation_perform<MultiwordInteger<2, uint16_t>>();
+      negation_perform<MultiwordInteger<1, uint16_t>>();
+  }
+
+  template<typename T>
+  void multiplication_perform() {
+    T a(0.), b(1.), c(-1.), d(2.);
 
     // Multiplying with zero yields zero
     CHECK_EQUAL(double(a*d), double(a));
@@ -131,18 +159,24 @@ SUITE(MultiwordInteger) {
     CHECK_EQUAL(double(c*d), double(d*c));
 
     // Results out of range of the smaller type should still work in the resulting type
-    b = double(0x10000);
-    MultiwordInteger<4, uint16_t> e(double(0x100000000));
+    b = pow(2., T::numWords * T::storageSize - 2.);
+    MultiwordInteger<T::numWords*2, typename T::storageType> e(pow(2., 2*T::numWords*T::storageSize-4.));
     CHECK_EQUAL(double(b*b), double(e));
 
     // But overflow when assigned to a smaller type
-    MultiwordInteger<2, uint16_t> f(b);
+    T f(b);
     f *= b;
     CHECK_EQUAL(double(f), double(a));
   }
 
-  TEST(division) {
-    MultiwordInteger<2, uint16_t> a(1.), b(2.), c, d, zero(0.), unity(1.);
+  TEST(multiplication) {
+      multiplication_perform<MultiwordInteger<2, uint16_t>>();
+      multiplication_perform<MultiwordInteger<1, uint16_t>>();
+  }
+
+  template<typename T>
+  void division_perform() {
+    T a(1.), b(2.), c, d, zero(0.), unity(1.);
 
     // Dividing by larger values yields zero for positive values, -1 for negative values
     CHECK_EQUAL(double(a/b), double(zero));
@@ -154,12 +188,16 @@ SUITE(MultiwordInteger) {
     // x/x == 1
     CHECK_EQUAL(double(b/b), double(unity));
 
-    // Test again, for larger values
-    a = 65536.*5;
-    b = 65536.;
-    CHECK_EQUAL(double(a/a), double(unity));
+    if (T::numWords > 1) {
+        // Test again, for larger values
+        a = pow(2., double(T::storageSize))*5;
+        b = pow(2., double(T::storageSize));
+        CHECK_EQUAL(double(a/a), double(unity));
+    }
 
     // If there is no remainder, a/b == c <-> a/c == b
+    a = 5.;
+    b = 1.;
     c = 5.;
     CHECK_EQUAL(double(a/b), double(c));
     CHECK_EQUAL(double(a/c), double(b));
@@ -176,22 +214,29 @@ SUITE(MultiwordInteger) {
     CHECK_EQUAL(double(-a/b), double(-c));
     CHECK_EQUAL(double(-a/c), double(-b));
 
-    // And for large values
-    a = 5*65536.;
-    b = 3*65536.;
-    c = 1.;
-    d = 2.;
-    CHECK_EQUAL(double(a/-b), double(-d));
-    CHECK_EQUAL(double((-a)/b), double(-d));
-    CHECK_EQUAL(double((-a)/(-b)), double(c));
+    if (T::numWords > 1) {
+        // And for large values
+        a = 5*pow(2., T::storageSize);
+        b = 3*pow(2., T::storageSize);
+        c = 1.;
+        d = 2.;
+        CHECK_EQUAL(double(a/-b), double(-d));
+        CHECK_EQUAL(double((-a)/b), double(-d));
+        CHECK_EQUAL(double((-a)/(-b)), double(c));
+    }
 
     // Division by zero
     a = 1.;
     b = 0.;
-    c = MultiwordInteger<2, uint16_t>::maxVal;
-    d = MultiwordInteger<2, uint16_t>::minVal;
+    c = T::_maxVal();
+    d = T::_minVal();
     CHECK_EQUAL(double(a/b), double(c));
     CHECK_EQUAL(double((-a)/b), double(d));
+  }
+
+  TEST(division) {
+      division_perform<MultiwordInteger<2, uint16_t>>();
+      division_perform<MultiwordInteger<1, uint16_t>>();
   }
 
   TEST(modulo) {

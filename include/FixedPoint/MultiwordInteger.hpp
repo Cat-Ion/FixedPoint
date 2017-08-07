@@ -72,7 +72,7 @@ public:
     constexpr MultiwordInteger<size, storageType>& operator++();
     constexpr MultiwordInteger<size, storageType>  operator++(int);
     constexpr MultiwordInteger<size, storageType>& operator--();
-    constexpr MultiwordInteger<size, storageType>& operator--(int);
+    constexpr MultiwordInteger<size, storageType>  operator--(int);
 
     constexpr MultiwordInteger<size, storageType> operator-() const;
 

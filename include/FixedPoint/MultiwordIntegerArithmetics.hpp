@@ -68,9 +68,9 @@ template<unsigned size, typename storageType> constexpr MultiwordInteger<size, s
     }
     return *this;
 }
-template<unsigned size, typename storageType> constexpr MultiwordInteger<size, storageType>& MultiwordInteger<size, storageType>::operator--(int) {
+template<unsigned size, typename storageType> constexpr MultiwordInteger<size, storageType> MultiwordInteger<size, storageType>::operator--(int) {
     MultiwordInteger<size, storageType> r(*this);
-    *this--;
+    --(*this);
     return r;
 }
 
