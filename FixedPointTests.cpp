@@ -242,8 +242,9 @@ SUITE(MultiwordInteger) {
       division_perform<MultiwordInteger<1, uint16_t>>();
   }
 
-  TEST(modulo) {
-    MultiwordInteger<2, uint16_t> a, b, c, d, e;
+  template<typename T>
+  void modulo_perform() {
+    T a, b, c, d, e;
 
     // Without remainder, positive and negative
     a = 5.;
@@ -336,6 +337,11 @@ SUITE(MultiwordInteger) {
     CHECK_EQUAL(double(e), double(b));
   }
 
+  TEST(modulo) {
+      modulo_perform<MultiwordInteger<2, uint16_t>>();
+      modulo_perform<MultiwordInteger<1, uint32_t>>();
+  }
+
   TEST(comparison) {
     MultiwordInteger<2, uint16_t> a, b;
 
@@ -359,8 +365,9 @@ SUITE(MultiwordInteger) {
     CHECK(b < a);
   }
 
-  TEST(shifts) {
-    MultiwordInteger<2, uint16_t> a = 65536., b = 0., c;
+  template<typename T>
+  void shifts_perform() {
+    T a = 65536., b = 0., c;
 
     // Test shifting all bits out, when positive
     a >>= 17;
@@ -402,7 +409,7 @@ SUITE(MultiwordInteger) {
 
     // Result should be negative
     a <<= 31;
-    b = MultiwordInteger<2, uint16_t>::minVal;
+    b = T::minVal;
     CHECK_EQUAL(double(a), double(b));
 
     // Result should be sign extended, and negative
@@ -432,6 +439,10 @@ SUITE(MultiwordInteger) {
     a >>= 16;
     b = -1.;
     CHECK_EQUAL(double(a), double(b));
+  }
+  TEST(shifts) {
+      shifts_perform<MultiwordInteger<2, uint16_t>>();
+      shifts_perform<MultiwordInteger<1, uint32_t>>();
   }
 
   template<typename T>

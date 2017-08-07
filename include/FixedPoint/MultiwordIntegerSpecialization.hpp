@@ -64,7 +64,14 @@ public:
     constexpr MultiwordInteger<size, storageType>& operator |=(MultiwordInteger<size, storageType> const &o) { s[0] |= o.s[0]; return *this; }
     constexpr MultiwordInteger<size, storageType>& operator ^=(MultiwordInteger<size, storageType> const &o) { s[0] ^= o.s[0]; return *this; }
     constexpr MultiwordInteger<size, storageType>  operator ~() const { return MultiwordInteger<size, storageType>(storageType(~s[0])); }
-    constexpr MultiwordInteger<size, storageType>& operator <<=(unsigned n) { s[0]<<=n; return *this; }
+    constexpr MultiwordInteger<size, storageType>& operator <<=(unsigned n) {
+        if (n >= storageSize) {
+            s[0] = 0;
+        } else {
+            s[0]<<=n;
+        }
+        return *this;
+    }
     constexpr MultiwordInteger<size, storageType>& operator >>=(unsigned n) { s[0] = storageType(signedType(s[0])>>n); return *this; }
 
     constexpr bool operator<(MultiwordInteger<size, storageType> const &o) const { return signedType(s[0]) < signedType(o.s[0]); }
