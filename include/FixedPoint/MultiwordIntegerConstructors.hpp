@@ -2,6 +2,7 @@
 #define MULTIWORDINTEGERCONSTRUCTORS_HPP
 #include <cmath>
 #include "MultiwordInteger.hpp"
+#include "FixedPointHelpers.hpp"
 
 template<unsigned size, typename storageType> template<unsigned otherSize> constexpr MultiwordInteger<size, storageType>::MultiwordInteger(MultiwordInteger<otherSize, storageType> const &o) : s{0} {
     unsigned num = size > otherSize ? otherSize : size;
@@ -42,14 +43,16 @@ template<unsigned size, typename storageType> constexpr MultiwordInteger<size, s
     }
 }
 template<unsigned size, typename storageType> constexpr MultiwordInteger<size, storageType>::MultiwordInteger(double v) : s{0} {
-    int lg = ilogb(v);
-    double sig = ldexp(v, -lg);
-    if (lg < 63) {
-        int64_t i = int64_t(sig*(int64_t(1)<<lg));
-        *this = i;
-    } else {
-        *this = int64_t(sig * (int64_t(1)<<62));
-        *this <<= lg - 62;
+    if (v != 0.) {
+        if (v > double(INT64_MIN) && v < double(INT64_MAX)) {
+            int64_t i = int64_t(v);
+            *this = i;
+        } else {
+            int lg = FixedPointHelpers::ilogb(v);
+            v *= FixedPointHelpers::dipow(2, 62-lg);
+            *this = int64_t(v);
+            *this <<= lg - 62;
+        }
     }
 }
 template<unsigned size, typename storageType> template<unsigned otherSize, typename otherStorageType> constexpr MultiwordInteger<size, storageType>::MultiwordInteger(MultiwordInteger<otherSize, otherStorageType> const &o) : s{0} {
