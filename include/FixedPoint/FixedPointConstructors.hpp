@@ -11,7 +11,8 @@ FixedPoint<integerWidth, fractionalWidth, storageType>::FixedPoint(double v)
     } else if (v < double(_minVal())) {
         this->v = StorageType::_minVal();
     } else {
-        this->v = v * FixedPointHelpers::dipow(2., fractionalWidth);
+        v *= FixedPointHelpers::dipow(2., fractionalWidth);
+        this->v = v;
     }
 }
 
