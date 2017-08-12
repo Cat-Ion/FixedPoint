@@ -1,6 +1,7 @@
 #ifndef MULTIWORDINTEGERCASTS_HPP
 #define MULTIWORDINTEGERCASTS_HPP
 #include "MultiwordInteger.hpp"
+#include "FixedPointHelpers.hpp"
 
 template<unsigned size, typename storageType> constexpr MultiwordInteger<size, storageType>::operator bool() const {
     for (unsigned i = 0; i < size; i++) {
@@ -44,7 +45,7 @@ template<unsigned size, typename storageType> constexpr MultiwordInteger<size, s
 
 template<unsigned size, typename storageType> constexpr MultiwordInteger<size, storageType>::operator double() const {
     double r = 0;
-    double m = pow(2., storageSize);
+    double m = FixedPointHelpers::dipow(2., storageSize);
     double n = 1;
 
     if (this->is_positive()) {

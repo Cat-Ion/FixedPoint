@@ -1,12 +1,13 @@
 #ifndef FIXEDPOINTCASTS_HPP
 #define FIXEDPOINTCASTS_HPP
 #include "FixedPoint.hpp"
+#include "FixedPointHelpers.hpp"
 
 template<int integerWidth, unsigned fractionalWidth, typename storageType> constexpr
 FixedPoint<integerWidth, fractionalWidth, storageType>::operator double() const
 {
     double dv = double(v);
-    double p2 = pow(2., -double(fractionalWidth));
+    double p2 = FixedPointHelpers::dipow(2., -fractionalWidth);
     double r = p2 * dv;
     return r;
 }
