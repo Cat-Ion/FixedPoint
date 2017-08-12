@@ -24,9 +24,9 @@ public:
     static constexpr MultiwordInteger<1, storageType> _minVal() { return MultiwordInteger<size, storageType>(storageType((storageType(1)<<(storageSize-1)))); }
 
     constexpr MultiwordInteger() : s{0} {}
-    constexpr MultiwordInteger(storageType const &v) : s{storageType(v)} {}
-    constexpr MultiwordInteger(int64_t v) : s{storageType(v)} {}
-    constexpr MultiwordInteger(double v) : s{storageType(v)} {}
+    constexpr MultiwordInteger(storageType const &v) : s{v} {}
+    constexpr MultiwordInteger(int64_t v) : s{storageType(signedType(v))} {}
+    constexpr MultiwordInteger(double v) : s{storageType(signedType(v))} {}
 
     template<unsigned otherSize, typename otherStorageType> constexpr
     MultiwordInteger(MultiwordInteger<otherSize, otherStorageType> const &o) : s{0}{

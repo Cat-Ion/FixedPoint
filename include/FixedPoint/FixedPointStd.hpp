@@ -25,19 +25,19 @@ namespace std {
     {
         FixedPoint<iw,mfw,backingStorageType> ya = y.nabs(), xa = x.nabs();
         auto mxmn = std::minmax(ya, xa);
+        constexpr FixedPoint<iw, mfw, backingStorageType>
+                c1(0.15931422),
+                c2(-0.327622764),
+                pi2(M_PI_2),
+                pi(M_PI),
+                rstart(-0.0464964749);
         FixedPoint<iw,mfw,backingStorageType>
                 mx = mxmn.first,
                 mn = mxmn.second,
                 a = mn / mx,
-                s = a*a,
-                r(-0.0464964749);
-        FixedPoint<iw, mfw, backingStorageType> const
-                c1(0.15931422),
-                c2(-0.327622764),
-                pi2(M_PI_2),
-                pi(M_PI);
+                s = a*a;
 
-        r = r * s + c1;
+        FixedPoint<iw,mfw,backingStorageType> r = rstart * s + c1;
         r = r * s + c2;
         r = r * s * a + a;
 
@@ -69,7 +69,7 @@ namespace std {
             x += FixedPoint<iw, mfw, backingStorageType>(2*M_PI);
         }
 
-        FixedPoint<iw, mfw, backingStorageType> c1(.405284735), c2(1.27323954), c3(0.225);
+        constexpr FixedPoint<iw, mfw, backingStorageType> c1(.405284735), c2(1.27323954), c3(0.225);
         FixedPoint<iw, mfw, backingStorageType> ret;
         ret = c1 * x.nabs();
         ret += c2;
@@ -96,7 +96,7 @@ namespace std {
             x += FixedPoint<iw, mfw, backingStorageType>(2*M_PI);
         }
 
-        FixedPoint<iw, mfw, backingStorageType> c1(.405284735), c2(1.27323954), c3(0.225);
+        constexpr FixedPoint<iw, mfw, backingStorageType> c1(.405284735), c2(1.27323954), c3(0.225);
         FixedPoint<iw, mfw, backingStorageType> ret;
         ret = c1 * x.nabs();
         ret += c2;
