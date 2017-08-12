@@ -1,6 +1,7 @@
 #ifndef MULTIWORDINTEGERUTILITY_HPP
 #define MULTIWORDINTEGERUTILITY_HPP
 #include "MultiwordInteger.hpp"
+#include "FixedPointHelpers.hpp"
 
 template<unsigned size, typename storageType> constexpr
 MultiwordInteger<size, storageType> MultiwordInteger<size, storageType>::_maxVal() {
@@ -52,7 +53,7 @@ unsigned MultiwordInteger<size, storageType>::leading_zeros() const {
         if (s[i] == 0) {
             r += storageSize;
         } else {
-            return r + nlz(s[i]);
+            return r + FixedPointHelpers::nlz(s[i]);
         }
     }
     return r;

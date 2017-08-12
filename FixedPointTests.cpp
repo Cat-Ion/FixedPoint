@@ -585,12 +585,13 @@ SUITE(MultiwordInteger) {
 
 SUITE(FixedPoint) {
   TEST(construction) {
-    FixedPoint<3, 28, uint16_t> a(5.), b;
+    FixedPoint<3, 28, uint16_t> a, b;
     FixedPoint<5, 26, uint32_t> c;
     FixedPoint<5, 26, uint32_t> d;
 
     FixedPoint<31, 0>::StorageType s(int64_t(1));
 
+    a = 5.;
     CHECK_EQUAL(double(a), 5.);
 
     a = int(5);

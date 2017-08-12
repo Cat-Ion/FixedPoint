@@ -1,6 +1,8 @@
 #ifndef MULTIWORDINTEGERSPECIALIZATION_HPP
 #define MULTIWORDINTEGERSPECIALIZATION_HPP
 #include "MultiwordInteger.hpp"
+#include "FixedPointHelpers.hpp"
+
 template<typename _storageType>
 class MultiwordInteger<1, _storageType> {
     template<unsigned otherSize, typename otherStorageType>
@@ -14,7 +16,7 @@ public:
 
 protected:
     typedef typename std::make_signed<_storageType>::type signedType;
-    typedef typename make_bigger<_storageType>::type bigType;
+    typedef typename FixedPointHelpers::make_bigger<_storageType>::type bigType;
     _storageType s[1];
 
 public:
@@ -80,7 +82,7 @@ public:
     constexpr void negate() { s[0] = ~s[0] + 1; }
     constexpr void fill_leading_bits(unsigned num) { s[0] |= ~storageType(0) << (storageSize - num); }
 
-    constexpr unsigned leading_zeros() const { return nlz(s[0]); }
+    constexpr unsigned leading_zeros() const { return FixedPointHelpers::nlz(s[0]); }
     constexpr bool     is_negative() const { return signedType(s[0]) < 0; }
     constexpr bool     is_positive() const { return signedType(s[0]) > 0; }
     // Return true if bit at position is set, starting from the LSB.

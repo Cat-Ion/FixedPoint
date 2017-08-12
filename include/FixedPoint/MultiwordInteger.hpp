@@ -2,28 +2,7 @@
 #define MULTIWORDINTEGER_HPP
 #include <algorithm>
 #include <stdint.h>
-
-template<typename T> class make_bigger { };
-template<> class make_bigger<uint8_t > { public: typedef uint16_t type; };
-template<> class make_bigger<uint16_t> { public: typedef uint32_t type; };
-template<> class make_bigger<uint32_t> { public: typedef uint64_t type; };
-
-template<typename T> inline unsigned nlz(T x);
-template<> inline unsigned nlz(unsigned long long x) {
-    return __builtin_clzll(x);
-}
-template<> inline unsigned nlz(unsigned long x) {
-    return __builtin_clzl(x);
-}
-template<> inline unsigned nlz(unsigned int x) {
-    return __builtin_clz(x);
-}
-template<> inline unsigned nlz(unsigned short x) {
-    return nlz<unsigned int>(x) - 8*(sizeof(unsigned int) - sizeof(unsigned short));
-}
-template<> inline unsigned nlz(unsigned char x) {
-    return nlz<unsigned int>(x) - 8*(sizeof(unsigned int) - sizeof(unsigned char));
-}
+#include "FixedPointHelpers.hpp"
 
 template<unsigned size, typename _storageType = uint32_t>
 class MultiwordInteger
@@ -38,7 +17,7 @@ public:
 
 protected:
     typedef typename std::make_signed<_storageType>::type signedType;
-    typedef typename make_bigger<_storageType>::type bigType;
+    typedef typename FixedPointHelpers::make_bigger<_storageType>::type bigType;
     _storageType s[size];
 
 public:
