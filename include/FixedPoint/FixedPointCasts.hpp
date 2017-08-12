@@ -3,7 +3,7 @@
 #include "FixedPoint.hpp"
 #include "FixedPointHelpers.hpp"
 
-template<int integerWidth, unsigned fractionalWidth, typename storageType> constexpr
+template<int integerWidth, int fractionalWidth, typename storageType> constexpr
 FixedPoint<integerWidth, fractionalWidth, storageType>::operator double() const
 {
     double dv = double(v);
@@ -12,9 +12,9 @@ FixedPoint<integerWidth, fractionalWidth, storageType>::operator double() const
     return r;
 }
 
-template<int integerWidth, unsigned fractionalWidth, typename storageType> constexpr FixedPoint<integerWidth, fractionalWidth, storageType>::operator int8_t()  const { return int8_t (v>>fractionalWidth); }
-template<int integerWidth, unsigned fractionalWidth, typename storageType> constexpr FixedPoint<integerWidth, fractionalWidth, storageType>::operator int16_t() const { return int16_t(v>>fractionalWidth); }
-template<int integerWidth, unsigned fractionalWidth, typename storageType> constexpr FixedPoint<integerWidth, fractionalWidth, storageType>::operator int32_t() const { return int32_t(v>>fractionalWidth); }
-template<int integerWidth, unsigned fractionalWidth, typename storageType> constexpr FixedPoint<integerWidth, fractionalWidth, storageType>::operator int64_t() const { return int64_t(v>>fractionalWidth); }
+template<int integerWidth, int fractionalWidth, typename storageType> constexpr FixedPoint<integerWidth, fractionalWidth, storageType>::operator int8_t()  const { return int8_t (v>>fractionalWidth); }
+template<int integerWidth, int fractionalWidth, typename storageType> constexpr FixedPoint<integerWidth, fractionalWidth, storageType>::operator int16_t() const { return int16_t(v>>fractionalWidth); }
+template<int integerWidth, int fractionalWidth, typename storageType> constexpr FixedPoint<integerWidth, fractionalWidth, storageType>::operator int32_t() const { return int32_t(v>>fractionalWidth); }
+template<int integerWidth, int fractionalWidth, typename storageType> constexpr FixedPoint<integerWidth, fractionalWidth, storageType>::operator int64_t() const { return int64_t(v>>fractionalWidth); }
 
 #endif // FIXEDPOINTCASTS_HPP

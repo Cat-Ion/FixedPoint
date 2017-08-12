@@ -3,7 +3,7 @@
 #include "FixedPoint.hpp"
 #include "FixedPointHelpers.hpp"
 
-template<int integerWidth, unsigned fractionalWidth, typename storageType> constexpr
+template<int integerWidth, int fractionalWidth, typename storageType> constexpr
 FixedPoint<integerWidth, fractionalWidth, storageType>::FixedPoint(double v)
 {
     if (v > double(_maxVal())) {
@@ -16,7 +16,7 @@ FixedPoint<integerWidth, fractionalWidth, storageType>::FixedPoint(double v)
     }
 }
 
-template<int integerWidth, unsigned fractionalWidth, typename storageType> constexpr
+template<int integerWidth, int fractionalWidth, typename storageType> constexpr
 FixedPoint<integerWidth, fractionalWidth, storageType>::FixedPoint(int v)
 {
     if (v > 1 << integerWidth) {
@@ -29,14 +29,14 @@ FixedPoint<integerWidth, fractionalWidth, storageType>::FixedPoint(int v)
     }
 }
 
-template<int integerWidth, unsigned fractionalWidth, typename storageType> constexpr
+template<int integerWidth, int fractionalWidth, typename storageType> constexpr
 FixedPoint<integerWidth, fractionalWidth, storageType>::FixedPoint(FixedPoint const &o) : v(o.v) {}
 
-template<int integerWidth, unsigned fractionalWidth, typename storageType> constexpr
+template<int integerWidth, int fractionalWidth, typename storageType> constexpr
 FixedPoint<integerWidth, fractionalWidth, storageType>::FixedPoint(StorageType const &s) : v(s) {}
 
-template<int integerWidth, unsigned fractionalWidth, typename storageType>
-template<int oiw, unsigned ofw, typename otherStorageType> constexpr
+template<int integerWidth, int fractionalWidth, typename storageType>
+template<int oiw, int ofw, typename otherStorageType> constexpr
 FixedPoint<integerWidth, fractionalWidth, storageType>::FixedPoint(FixedPoint<oiw,ofw,otherStorageType> const &o) {
     if (ofw > fractionalWidth) {
         typename FixedPoint<oiw, ofw, otherStorageType>::StorageType ov = o.v >> (ofw-fractionalWidth);
