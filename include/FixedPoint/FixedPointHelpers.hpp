@@ -4,19 +4,20 @@
 #include <limits.h>
 
 namespace FixedPointHelpers {
-    constexpr double dipow_accum(double base, int exponent, double accum) {
-        if (exponent == 0) {
-            return accum;
-        }
-        if (exponent < 0) {
-            return dipow_accum(base, exponent + 1, accum / base);
-        }
-
-        return dipow_accum(base, exponent - 1, accum * base);
-    }
-
     constexpr double dipow(double base, int exponent) {
-        return dipow_accum(base, exponent, 1.);
+        double ret = 1.;
+        if (exponent < 0) {
+            base = 1./base;
+            exponent = -exponent;
+        }
+        while (exponent > 0) {
+            if (exponent & 1) {
+                ret *= base;
+            }
+            exponent /= 2;
+            base *= base;
+        }
+        return ret;
     }
 
     constexpr int ilogb(double v) {
