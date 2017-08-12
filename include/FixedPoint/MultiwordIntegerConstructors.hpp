@@ -44,7 +44,7 @@ template<unsigned size, typename storageType> constexpr MultiwordInteger<size, s
 }
 template<unsigned size, typename storageType> constexpr MultiwordInteger<size, storageType>::MultiwordInteger(double v) : s{0} {
     if (v != 0.) {
-        if (v < double(uint64_t(1)<<63)) {
+        if (v > double(INT64_MIN) && v < double(INT64_MAX)) {
             int64_t i = int64_t(v);
             *this = i;
         } else {
