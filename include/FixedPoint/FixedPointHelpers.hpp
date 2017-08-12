@@ -5,9 +5,14 @@
 
 namespace FixedPointHelpers {
     constexpr double dipow_accum(double base, int exponent, double accum) {
-        return exponent == 0 ? accum :
-               exponent  < 0 ? dipow_accum(base, exponent + 1, accum / base):
-                               dipow_accum(base, exponent - 1, accum * base);
+        if (exponent == 0) {
+            return accum;
+        }
+        if (exponent < 0) {
+            return dipow_accum(base, exponent + 1, accum / base);
+        }
+
+        return dipow_accum(base, exponent - 1, accum * base);
     }
 
     constexpr double dipow(double base, int exponent) {
