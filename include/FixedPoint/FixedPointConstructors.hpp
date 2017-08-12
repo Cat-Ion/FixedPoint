@@ -1,6 +1,7 @@
 #ifndef FIXEDPOINTCONSTRUCTORS_HPP
 #define FIXEDPOINTCONSTRUCTORS_HPP
 #include "FixedPoint.hpp"
+#include "FixedPointHelpers.hpp"
 
 template<int integerWidth, unsigned fractionalWidth, typename storageType> constexpr
 FixedPoint<integerWidth, fractionalWidth, storageType>::FixedPoint(double v)
@@ -10,7 +11,7 @@ FixedPoint<integerWidth, fractionalWidth, storageType>::FixedPoint(double v)
     } else if (v < double(_minVal())) {
         this->v = StorageType::_minVal();
     } else {
-        this->v = v * pow(2., double(fractionalWidth));
+        this->v = v * FixedPointHelpers::dipow(2., fractionalWidth);
     }
 }
 
