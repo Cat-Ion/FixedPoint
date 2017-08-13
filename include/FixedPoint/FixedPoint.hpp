@@ -17,7 +17,7 @@ protected:
     typedef FixedPoint<_integerWidth,_fractionalWidth,backingStorageType> FP;
 
 public:
-    static const unsigned fractionalWidth = _fractionalWidth;
+    static const int fractionalWidth = _fractionalWidth;
     static const int integerWidth = _integerWidth;
     StorageType v;
 
