@@ -138,7 +138,9 @@ constexpr void MultiwordInteger<size, storageType>::mul (
             out->s[i+j] = t;
             k = t >> storageSize;
         }
-        out->s[i + limitOther] = k;
+        if (i + limitOther < outSize) {
+            out->s[i + limitOther] = k;
+        }
     }
 
     // r has unsigned product, correct if this or o are less than zero
