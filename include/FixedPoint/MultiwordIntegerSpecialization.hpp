@@ -99,7 +99,8 @@ public:
     mul(MultiwordInteger<otherSize, storageType> const &o,
         MultiwordInteger<outSize,   storageType>       *out) const {
         if (otherSize == 1) {
-            bigType c = signedType(s[0]) * signedType(o.s[0]);
+            typename std::make_signed<bigType>::type c = signedType(s[0]);
+            c *= signedType(o.s[0]);
             *out = MultiwordInteger<outSize, storageType>(storageType(c));
             if (outSize > 1) {
                 out->s[1] = c >> storageSize;
