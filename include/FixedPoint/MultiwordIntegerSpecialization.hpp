@@ -95,6 +95,13 @@ public:
     explicit constexpr operator int64_t() const { return signedType(s[0]); }
     explicit constexpr operator double() const  { return signedType(s[0]); }
 
+    constexpr void get_raw(uint8_t *out) const {
+        for (unsigned j = 0; j < storageSize; j += 8) {
+            *out = s[0] >> j;
+            out++;
+        }
+    }
+
     template<unsigned otherSize, unsigned outSize> constexpr void
     mul(MultiwordInteger<otherSize, storageType> const &o,
         MultiwordInteger<outSize,   storageType>       *out) const {

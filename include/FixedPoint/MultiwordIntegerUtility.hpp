@@ -85,4 +85,14 @@ bool MultiwordInteger<size, storageType>::bit(size_t position) const {
     position %= storageSize;
     return s[word] & (1<<position);
 }
+
+template<unsigned size, typename storageType>
+constexpr void MultiwordInteger<size, storageType>::get_raw(uint8_t *out) const {
+    for (unsigned i = 0; i < size; i++) {
+        for (unsigned j = 0; j < storageSize; j += 8) {
+            *out = s[i] >> j;
+            out++;
+        }
+    }
+}
 #endif // MULTIWORDINTEGERUTILITY_HPP

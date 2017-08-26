@@ -38,4 +38,10 @@ FixedPoint<_integerWidth, _fractionalWidth, backingStorageType>::nabs() const {
     return v.is_positive() ? -*this : *this;
 }
 
+template<int _integerWidth, int _fractionalWidth, typename backingStorageType> constexpr
+void
+FixedPoint<_integerWidth, _fractionalWidth, backingStorageType>::get_raw(uint8_t *out) const {
+    v.get_raw(out);
+}
+
 #endif // FIXEDPOINTUTILITY_HPP

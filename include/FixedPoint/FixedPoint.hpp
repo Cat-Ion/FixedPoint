@@ -58,6 +58,8 @@ public:
     explicit constexpr operator int16_t() const;
     explicit constexpr operator int32_t() const;
     explicit constexpr operator int64_t() const;
+
+    constexpr void get_raw(uint8_t *out) const;
 };
 template<int integerWidth, int fractionalWidth, typename storageType>
 constexpr

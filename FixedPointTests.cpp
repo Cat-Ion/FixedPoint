@@ -581,6 +581,24 @@ SUITE(MultiwordInteger) {
       CHECK_EQUAL(int16_t(b), 0x7788);
       CHECK_EQUAL(int8_t(b),  int8_t(0x88));
   }
+
+  TEST(raw_data) {
+      MultiwordInteger<1, uint32_t> a = 5. + 6.*256 + 7.*256*256 + 8.*256*256*256;
+      uint8_t data[4];
+
+      a.get_raw(data);
+      CHECK_EQUAL(data[0], 5);
+      CHECK_EQUAL(data[1], 6);
+      CHECK_EQUAL(data[2], 7);
+      CHECK_EQUAL(data[3], 8);
+
+      MultiwordInteger<2, uint16_t> b = 5. + 6.*256 + 7.*256*256 + 8.*256*256*256;
+      b.get_raw(data);
+      CHECK_EQUAL(data[0], 5);
+      CHECK_EQUAL(data[1], 6);
+      CHECK_EQUAL(data[2], 7);
+      CHECK_EQUAL(data[3], 8);
+  }
 }
 
 SUITE(FixedPoint) {
@@ -842,6 +860,15 @@ SUITE(FixedPoint) {
     b = FixedPoint<4, 91, uint32_t>::maxVal;
     CHECK_EQUAL(double(std::abs(a)), double(b));
     CHECK_EQUAL(double(std::abs(b)), double(b));
+  }
+
+  TEST(raw_data) {
+      FixedPoint<4, 11, uint16_t> a = 5.;
+      uint8_t data[2];
+
+      a.get_raw(data);
+      CHECK_EQUAL(data[0], 0);
+      CHECK_EQUAL(data[1], 5 << 3);
   }
 }
 
