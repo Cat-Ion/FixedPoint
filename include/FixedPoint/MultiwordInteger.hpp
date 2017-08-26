@@ -74,6 +74,8 @@ public:
     explicit constexpr operator int64_t() const;
     explicit constexpr operator double() const;
 
+    constexpr void get_raw(uint8_t *out) const;
+
     template<unsigned otherSize, unsigned outSize> constexpr void
     mul(MultiwordInteger<otherSize, storageType> const &o,
         MultiwordInteger<outSize,   storageType>       *out) const;
