@@ -41,9 +41,14 @@ FixedPoint<integerWidth, fractionalWidth, storageType>::FixedPoint(FixedPoint<oi
     if (ofw > fractionalWidth) {
         typename FixedPoint<oiw, ofw, otherStorageType>::StorageType ov = o.v >> (ofw-fractionalWidth);
         this->v = ov;
+        if (o.v.bit(ofw-fractionalWidth-1)) {
+            ++this->v;
+        }
     } else {
         this->v = o.v;
-        this->v <<= (fractionalWidth - ofw);
+        if (ofw < fractionalWidth) {
+            this->v <<= (fractionalWidth - ofw);
+        }
     }
 }
 #endif // FIXEDPOINTCONSTRUCTORS_HPP
