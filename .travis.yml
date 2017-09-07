@@ -22,7 +22,10 @@ matrix:
     - os: linux
       addons:
         apt:
+          sources:
+            - ubuntu-toolchain-r-test
           packages:
+            - g++-5
             - libunittest++-dev
       env:
         - MATRIX_EVAL="CC=clang && CXX=clang++"
