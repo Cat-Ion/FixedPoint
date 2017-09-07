@@ -599,6 +599,23 @@ SUITE(MultiwordInteger) {
       CHECK_EQUAL(data[2], 7);
       CHECK_EQUAL(data[3], 8);
   }
+ 
+  TEST(helpers) {
+      MultiwordInteger<2, uint32_t> a(int64_t(1));
+      CHECK_EQUAL(a.leading_zeros(), 63);
+      CHECK_EQUAL(FixedPointHelpers::nlz_constexpr(int32_t(1)), 31);
+      CHECK_EQUAL(FixedPointHelpers::nlz_constexpr(int32_t(0)), 32);
+      CHECK_EQUAL(FixedPointHelpers::nlz(uint64_t(1)), 63);
+      CHECK_EQUAL(FixedPointHelpers::nlz(uint32_t(1)), 31);
+      CHECK_EQUAL(FixedPointHelpers::nlz(uint16_t(1)), 15);
+      CHECK_EQUAL(FixedPointHelpers::nlz(uint8_t(1)), 7);
+      CHECK_EQUAL(FixedPointHelpers::ilogb(0), INT_MIN);
+      CHECK_EQUAL(FixedPointHelpers::ilogb(0.5), -1);
+      CHECK_EQUAL(FixedPointHelpers::ilogb(2), 1);
+      CHECK_EQUAL(FixedPointHelpers::ilogb(-2), 1);
+      CHECK_EQUAL(FixedPointHelpers::ilogb(NAN), 0);
+      CHECK_EQUAL(FixedPointHelpers::ilogb(INFINITY), INT_MAX);
+  }
 }
 
 SUITE(FixedPoint) {
