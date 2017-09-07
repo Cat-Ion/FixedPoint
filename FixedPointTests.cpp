@@ -604,6 +604,7 @@ SUITE(MultiwordInteger) {
       MultiwordInteger<2, uint32_t> a(int64_t(1));
       CHECK_EQUAL(a.leading_zeros(), 63);
       CHECK_EQUAL(FixedPointHelpers::nlz_constexpr(int32_t(1)), 31);
+      CHECK_EQUAL(FixedPointHelpers::nlz_constexpr(int32_t(0)), 32);
       CHECK_EQUAL(FixedPointHelpers::nlz(uint64_t(1)), 63);
       CHECK_EQUAL(FixedPointHelpers::nlz(uint32_t(1)), 31);
       CHECK_EQUAL(FixedPointHelpers::nlz(uint16_t(1)), 15);
