@@ -1,3 +1,6 @@
+/* Copyright 2017 Valentin Ochs <a at 0au dot de>.
+ * See the LICENSE file in the top-level directory and at
+ * https://github.com/Cat-Ion/FixedPoint/blob/master/LICENSE. */
 #ifndef FIXEDPOINTHELPERS_HPP
 #define FIXEDPOINTHELPERS_HPP
 #include <cmath>
