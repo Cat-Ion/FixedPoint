@@ -631,7 +631,7 @@ SUITE(FixedPoint) {
     CHECK_EQUAL(double(f), 0.5);
 
     FixedPoint<32, -1> g(a);
-    CHECK_EQUAL(double(g), 4);
+    CHECK_EQUAL(double(g), 6); // Round up
 
     a = 100.;
     CHECK_EQUAL(double(a), double(FixedPoint<3, 28, uint16_t>::maxVal));
