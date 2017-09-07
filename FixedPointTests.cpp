@@ -599,6 +599,17 @@ SUITE(MultiwordInteger) {
       CHECK_EQUAL(data[2], 7);
       CHECK_EQUAL(data[3], 8);
   }
+ 
+  template<typename T>
+  void nlz_perform() {
+      CHECK_EQUAL(T(int64_t(1)).leading_zeros(), 63);
+      CHECK_EQUAL(T(int64_t(1)<<32).leading_zeros(), 31);
+  }
+  TEST(nlz) {
+      nlz_perform<MultiwordInteger<2, uint32_t>>();
+      nlz_perform<MultiwordInteger<4, uint16_t>>();
+      nlz_perform<MultiwordInteger<8, uint8_t>>();
+  }
 }
 
 SUITE(FixedPoint) {
