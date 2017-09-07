@@ -22,13 +22,10 @@ matrix:
     - os: linux
       addons:
         apt:
-          sources:
-            - llvm-toolchain-trusty
           packages:
-            - clang-6.0
             - libunittest++-dev
       env:
-        - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0"
+        - MATRIX_EVAL="CC=clang && CXX=clang++"
 
 before_install:
     - eval "${MATRIX_EVAL}"
