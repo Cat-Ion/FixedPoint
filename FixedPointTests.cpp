@@ -612,12 +612,12 @@ SUITE(MultiwordInteger) {
       CHECK_EQUAL(FixedPointHelpers::nlz(uint32_t(1)), 31);
       CHECK_EQUAL(FixedPointHelpers::nlz(uint16_t(1)), 15);
       CHECK_EQUAL(FixedPointHelpers::nlz(uint8_t(1)), 7);
-      CHECK_EQUAL(FixedPointHelpers::ilogb(0), INT_MIN);
+      CHECK_EQUAL(FixedPointHelpers::ilogb(0), std::numeric_limits<int>::min());
       CHECK_EQUAL(FixedPointHelpers::ilogb(0.5), -1);
       CHECK_EQUAL(FixedPointHelpers::ilogb(2), 1);
       CHECK_EQUAL(FixedPointHelpers::ilogb(-2), 1);
       CHECK_EQUAL(FixedPointHelpers::ilogb(NAN), 0);
-      CHECK_EQUAL(FixedPointHelpers::ilogb(INFINITY), INT_MAX);
+      CHECK_EQUAL(FixedPointHelpers::ilogb(INFINITY), std::numeric_limits<int>::max());
   }
 }
 

@@ -63,7 +63,7 @@ public:
     constexpr MultiwordInteger<size, storageType>& operator--() { s[0]--; return *this; }
     constexpr MultiwordInteger<size, storageType>  operator--(int) { MultiwordInteger<size, storageType> r(*this); --*this; return r; }
 
-    constexpr MultiwordInteger<size, storageType> operator-() const { return MultiwordInteger<size, storageType>(storageType(-s[0])); }
+    constexpr MultiwordInteger<size, storageType> operator-() const { return MultiwordInteger<size, storageType>(storageType(-signedType(s[0]))); }
 
     constexpr MultiwordInteger<size, storageType>& operator &=(MultiwordInteger<size, storageType> const &o) { s[0] &= o.s[0]; return *this; }
     constexpr MultiwordInteger<size, storageType>& operator |=(MultiwordInteger<size, storageType> const &o) { s[0] |= o.s[0]; return *this; }

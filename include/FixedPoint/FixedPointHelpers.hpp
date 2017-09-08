@@ -4,7 +4,7 @@
 #ifndef FIXEDPOINTHELPERS_HPP
 #define FIXEDPOINTHELPERS_HPP
 #include <cmath>
-#include <limits.h>
+#include <limits>
 #include <algorithm>
 #include <stdint.h>
 
@@ -60,9 +60,9 @@ namespace FixedPointHelpers {
 
     constexpr int ilogb(double v) {
         return v < 0         ? ilogb(-v) :
-               std::isnan(v) ? 0 :
-               std::isinf(v) ? INT_MAX :
-               v == 0        ? INT_MIN :
+               !(v == v)     ? 0 : // NAN check
+               v > std::numeric_limits<double>::max() ? std::numeric_limits<int>::max() :
+               v == 0        ? std::numeric_limits<int>::min() :
                v < 1         ? ilogb(v*2)-1 :
                v >= 2        ? ilogb(v/2) + 1 :
                                0;
