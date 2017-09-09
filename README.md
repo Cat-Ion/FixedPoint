@@ -1,7 +1,9 @@
 FixedPoint
 ==========
 
-To use, get a compiler that supports C++14, then
+To use, get a compiler that supports C++14 (gcc and clang are supported, Visual
+Studio will currently not compile the code, and other compilers have not been
+tested), and
 
     #include <FixedPoint/FixedPoint.hpp>
 
