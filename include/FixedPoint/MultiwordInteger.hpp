@@ -4,6 +4,7 @@
 #ifndef MULTIWORDINTEGER_HPP
 #define MULTIWORDINTEGER_HPP
 #include <algorithm>
+#include <type_traits>
 #include <stdint.h>
 #include "FixedPointHelpers.hpp"
 
@@ -17,6 +18,9 @@ public:
     typedef _storageType storageType;
     static const constexpr size_t numWords = size;
     static const constexpr size_t storageSize = sizeof(storageType) * 8;
+    
+    static_assert(std::is_unsigned<storageType>::value == true, "Storage type must be unsigned");
+    static_assert(std::is_integral<storageType>::value == true, "Storage type must be integral");
 
 protected:
     typedef typename std::make_signed<_storageType>::type signedType;
@@ -32,16 +36,23 @@ public:
     constexpr MultiwordInteger() : s{0} {}
     template<unsigned otherSize> constexpr MultiwordInteger(MultiwordInteger<otherSize, storageType> const &o);
     constexpr MultiwordInteger(storageType const &v);
+    
+    constexpr MultiwordInteger(int8_t v);
+    constexpr MultiwordInteger(int16_t v);
+    constexpr MultiwordInteger(int32_t v);
     constexpr MultiwordInteger(int64_t v);
+    constexpr MultiwordInteger(float v);
     constexpr MultiwordInteger(double v);
+    constexpr MultiwordInteger(long double v);
+    
     template<unsigned otherSize, typename otherStorageType> constexpr MultiwordInteger(MultiwordInteger<otherSize, otherStorageType> const &o);
 
     constexpr MultiwordInteger<size, storageType>& operator+=(MultiwordInteger<size, storageType> const &o);
     constexpr MultiwordInteger<size, storageType>& operator-=(MultiwordInteger<size, storageType> const &o);
     template<unsigned otherSize> constexpr MultiwordInteger<size, storageType>& operator*=(MultiwordInteger<otherSize, storageType> const &o);
-    constexpr MultiwordInteger<size, storageType>& operator*=(int64_t const &o);
+    template<typename S> constexpr MultiwordInteger<size, storageType>& operator*=(S const &o);
     template<unsigned otherSize> constexpr MultiwordInteger<size, storageType>& operator/=(MultiwordInteger<otherSize, storageType> const &o);
-    constexpr MultiwordInteger<size, storageType>& operator/=(int64_t const &o);
+    template<typename S> constexpr MultiwordInteger<size, storageType>& operator/=(S const &o);
     constexpr MultiwordInteger<size, storageType>& operator%=(MultiwordInteger<size, storageType> const &o);
 
     constexpr MultiwordInteger<size, storageType>& operator++();

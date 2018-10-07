@@ -29,20 +29,40 @@ template<unsigned size, typename storageType> constexpr MultiwordInteger<size, s
         }
     }
 }
+template<unsigned size, typename storageType> constexpr MultiwordInteger<size, storageType>::MultiwordInteger(int8_t v) : s{0} {
+    *this = MultiwordInteger<size, std::make_unsigned<decltype(v)>::type>(v);
+}
+template<unsigned size, typename storageType> constexpr MultiwordInteger<size, storageType>::MultiwordInteger(int16_t v) : s{0} {
+    *this = MultiwordInteger<size, std::make_unsigned<decltype(v)>::type>(v);
+}
+template<unsigned size, typename storageType> constexpr MultiwordInteger<size, storageType>::MultiwordInteger(int32_t v) : s{0} {
+    *this = MultiwordInteger<size, std::make_unsigned<decltype(v)>::type>(v);
+}
 template<unsigned size, typename storageType> constexpr MultiwordInteger<size, storageType>::MultiwordInteger(int64_t v) : s{0} {
+    uint64_t uv = v;
     unsigned i = 0;
-    typename std::make_unsigned<int64_t>::type uv = v;
-    while (uv && i < size) {
-        s[i] = uv & ((bigType(1)<<storageSize) - 1);
+    for (; i < size && uv; i++) {
+        s[i] = uv;
         uv >>= storageSize;
-        i++;
     }
-    while (i < size) {
+    for (; i < size; i++) {
         s[i] = 0;
-        i++;
     }
-    if (v < 0) {
+    if(v < 0) {
         fill_leading_bits(leading_zeros());
+    }
+}
+template<unsigned size, typename storageType> constexpr MultiwordInteger<size, storageType>::MultiwordInteger(float v) : s{0} {
+    if (v != 0.) {
+        if (v > INT32_MIN && v < INT32_MAX) {
+            int32_t i = int32_t(v);
+            *this = i;
+        } else {
+            int lg = FixedPointHelpers::ilogb(v);
+            v *= FixedPointHelpers::dipow(2, 30-lg);
+            *this = int64_t(v);
+            *this <<= lg - 30;
+        }
     }
 }
 template<unsigned size, typename storageType> constexpr MultiwordInteger<size, storageType>::MultiwordInteger(double v) : s{0} {
@@ -53,8 +73,23 @@ template<unsigned size, typename storageType> constexpr MultiwordInteger<size, s
         } else {
             int lg = FixedPointHelpers::ilogb(v);
             v *= FixedPointHelpers::dipow(2, 62-lg);
-            *this = int64_t(v);
+            *this = MultiwordInteger(int64_t(v));
             *this <<= lg - 62;
+        }
+    }
+}
+template<unsigned size, typename storageType> constexpr MultiwordInteger<size, storageType>::MultiwordInteger(long double v) : s{0} {
+    if (v != 0.) {
+        if (v > INT64_MIN && v < INT64_MAX) {
+            int64_t i = int64_t(v);
+            *this = i;
+        } else {
+            while (std::abs(v) >= 1) {
+                double tv = v;
+                MultiwordInteger<size, storageType> tmwi = tv;
+                *this += tmwi;
+                v -= tv;
+            }
         }
     }
 }
