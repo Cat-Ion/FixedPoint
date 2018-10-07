@@ -32,16 +32,18 @@ template<unsigned size, typename storageType> template<unsigned otherSize> const
     *this = nv;
     return *this;
 }
-template<unsigned size, typename storageType> constexpr MultiwordInteger<size, storageType>& MultiwordInteger<size, storageType>::operator*=(int64_t const &o) {
+template<unsigned size, typename storageType> template<typename S> constexpr MultiwordInteger<size, storageType>& MultiwordInteger<size, storageType>::operator*=(S const &o) {
     MultiwordInteger<size, storageType> nv(o);
-    nv *= *this;
-    *this = nv;
-    return *this;
+    return *this *= nv;
 }
 template<unsigned size, typename storageType> template<unsigned otherSize> constexpr MultiwordInteger<size, storageType>&
 MultiwordInteger<size, storageType>::operator/=(MultiwordInteger<otherSize, storageType> const &o) {
     quotrem(o, *this, static_cast<MultiwordInteger<otherSize, storageType>*>(nullptr));
     return *this;
+}
+template<unsigned size, typename storageType> template<typename S> constexpr MultiwordInteger<size, storageType>& MultiwordInteger<size, storageType>::operator/=(S const &o) {
+    MultiwordInteger<size, storageType> nv(o);
+    return *this /= nv;
 }
 
 template<unsigned size, typename storageType> constexpr MultiwordInteger<size, storageType>&
