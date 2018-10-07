@@ -5,6 +5,8 @@ def qdump__FixedPoint(d, value):
     raw = [ value["v"]["s"][i].integer() for i in range( value["v"]["numWords"].integer() ) ]
     ss = value["v"]["storageSize"].integer()
     exp = [raw[i] * 2**(i * ss) for i in range(len(raw)) ]
+    if raw[-1] >= 2**(ss-1):
+        exp += [ -2**(ss * len(raw)) ]
     d.putValue(sum(exp) * 2**-value["fractionalWidth"].integer())
     if d.isExpanded():
         with Children(d):
