@@ -7,7 +7,7 @@ endif
 CXXFLAGS += -Wall -pedantic -std=c++14 -g -I$(UNITTEST_CPP_INCLUDE) -Iinclude
 LDFLAGS = -lUnitTest++ -lgcov
 
-HEADERS = $(find -type f include)
+HEADERS = $(shell find include/ -type f)
 
 all: FixedPointTests
 
