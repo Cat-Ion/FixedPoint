@@ -109,5 +109,92 @@ namespace std {
 
         return ret;
     }
+
+    template<int iw, int fw, typename backingStorageType = uint32_t>
+    constexpr FixedPoint<iw, fw, backingStorageType>
+    exp(FixedPoint<iw, fw, backingStorageType> x) {
+        using Type = FixedPoint<iw, fw, backingStorageType>;
+        Type val = x;
+        Type series = Type(1) + val;
+        for(int i = 2; val != Type(0); i++) {
+            val = val * x / i;
+            series += val;
+        }
+        return series;
+    }
+
+    template<int iw, int fw, typename backingStorageType = uint32_t>
+    FixedPoint<iw, fw, backingStorageType>
+    ln2() {
+        using Type = FixedPoint<iw, fw + 32, backingStorageType>;
+        Type retval = 0.;
+        Type div = 1;
+        Type el = 1;
+        for (int n = 1; el != Type(0); n++) {
+            div.v >>= 1;
+            el = div / n;
+            retval += el;
+        }
+        return retval;
+    }
+    
+    template<int iw, int fw, typename backingStorageType = uint32_t>
+    constexpr FixedPoint<iw, fw, backingStorageType>
+    log(FixedPoint<iw, fw, backingStorageType> x) {
+        using Type = FixedPoint<iw, fw, backingStorageType>;
+        Type retval = 0;
+        if (x < Type(0)) {
+            return FixedPoint<iw, fw, backingStorageType>::minVal;
+        }
+
+        while (x > Type(1)) {
+            retval += ln2<iw, fw, backingStorageType>();
+            x.v >>= 1;
+        }
+        
+        // ln(y) = ln(1-x) = \sum_{i=1}^{\infty} -x^i/i
+        // y = 1-x, x = 1-y
+        x = Type(1) - x;
+        Type el = 1;
+        Type eld = 1;
+        for (int i = 1; eld != Type(0); i++) {
+            el *= x;
+            eld = el / i;
+            retval -= eld;
+        }
+        return retval;
+    }
+
+    template<int iw, int fw, typename backingStorageType = uint32_t>
+    constexpr FixedPoint<iw, fw, backingStorageType>
+    pow(FixedPoint<iw, fw, backingStorageType> a, int b) {
+        if (b < 0) {
+            return FixedPoint<iw, fw, backingStorageType>(1) / pow(a, -b);
+        }
+        
+        FixedPoint<iw, fw, backingStorageType> retval = 1;
+        while(b) {
+            if (b & 1) {
+                retval *= a;
+            }
+            b >>= 1;
+            a *= a;
+        }
+        return retval;
+    }
+    
+    template<int iw, int fw, typename backingStorageType = uint32_t>
+    constexpr FixedPoint<iw, fw, backingStorageType>
+    pow(FixedPoint<iw, fw, backingStorageType> const &a, FixedPoint<iw, fw, backingStorageType> b) {
+        using Type = FixedPoint<iw, fw, backingStorageType>;
+        Type bloga = log(a) * b;
+        Type val = bloga;
+        Type series = val + Type(1);
+        for(int i = 2; val != Type(0); i++) {
+            val = val * bloga / i;
+            series += val;
+        }
+        return series * pow(a, int(b));
+    }
 }
 #endif // FIXEDPOINTSTD_HPP

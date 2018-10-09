@@ -41,7 +41,7 @@ public:
     constexpr FP& operator*=(FP const &o);
     constexpr FP& operator*=(int64_t const &o);
     constexpr FP& operator/=(FP const &o);
-    constexpr FP& operator/=(int64_t const &o);
+	constexpr FP& operator/=(int64_t const &o);
     constexpr FP& operator%=(FP const &o);
 
     constexpr FP operator-() const;
