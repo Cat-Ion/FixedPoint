@@ -186,15 +186,7 @@ namespace std {
     template<int iw, int fw, typename backingStorageType = uint32_t>
     constexpr FixedPoint<iw, fw, backingStorageType>
     pow(FixedPoint<iw, fw, backingStorageType> const &a, FixedPoint<iw, fw, backingStorageType> b) {
-        using Type = FixedPoint<iw, fw, backingStorageType>;
-        Type bloga = log(a) * b;
-        Type val = bloga;
-        Type series = val + Type(1);
-        for(int i = 2; val != Type(0); i++) {
-            val = val * bloga / i;
-            series += val;
-        }
-        return series * pow(a, int(b));
+        return exp(log(a)*b);
     }
 }
 #endif // FIXEDPOINTSTD_HPP
