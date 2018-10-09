@@ -44,6 +44,9 @@ are defined as well:
     std::cos
     std::atan2
     std::abs
+    std::exp
+    std::pow
+    std::log
 
 For the trigonometric functions, the results are at the moment only tested
 with an integral width of 3 and will probably return nonsensical results
