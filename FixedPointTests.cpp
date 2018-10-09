@@ -618,6 +618,12 @@ SUITE(MultiwordInteger) {
       CHECK_EQUAL(FixedPointHelpers::ilogb(-2.), 1);
       CHECK_EQUAL(FixedPointHelpers::ilogb(NAN), 0);
       CHECK_EQUAL(FixedPointHelpers::ilogb(INFINITY), INT_MAX);
+      CHECK_EQUAL(FixedPointHelpers::ilogb(0.f), INT_MIN);
+      CHECK_EQUAL(FixedPointHelpers::ilogb(0.5f), -1);
+      CHECK_EQUAL(FixedPointHelpers::ilogb(2.f), 1);
+      CHECK_EQUAL(FixedPointHelpers::ilogb(-2.f), 1);
+      CHECK_EQUAL(FixedPointHelpers::ilogb(float(NAN)), 0);
+      CHECK_EQUAL(FixedPointHelpers::ilogb(float(INFINITY)), INT_MAX);
   }
 }
 
@@ -896,6 +902,7 @@ SUITE(FixedPoint) {
   
   TEST(log) {
     using Type = FixedPoint<3, 28+32, uint32_t>;
+    CHECK_EQ(std::log(Type(-1)), Type::minVal);
     CHECK_CLOSE(double(std::log(Type(std::exp(1)))), 1, 1e-14);
     CHECK_CLOSE(double(std::log(Type(std::exp(2)))), 2, 1e-14);
     CHECK_CLOSE(double(std::log(FixedPoint<319, 64>(std::exp(200)))), 200, 1e-14);
