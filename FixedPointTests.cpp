@@ -905,7 +905,14 @@ SUITE(FixedPoint) {
     using Type = FixedPoint<319, 64, uint32_t>;
     Type b = 5;
     CHECK_CLOSE(double(std::exp(b)), std::exp(double(b)), 1e-14);
-  } 
+  }
+
+  TEST(pow) {
+    using Type = FixedPoint<5, 26+32>;
+    CHECK_CLOSE(double(std::pow(Type(5), -1)), 1./5, 1e-14);
+    CHECK_CLOSE(double(std::pow(Type(5), -1)), 1./5, 1e-14);
+    CHECK_CLOSE(double(std::pow(Type(25), Type(0.5))), 5, 1e-14);
+  }
 
   TEST(raw_data) {
       FixedPoint<4, 11, uint16_t> a = 5.;
