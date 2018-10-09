@@ -902,7 +902,7 @@ SUITE(FixedPoint) {
   
   TEST(log) {
     using Type = FixedPoint<3, 28+32, uint32_t>;
-    CHECK_EQ(std::log(Type(-1)), Type::minVal);
+    CHECK_EQUAL(double(std::log(Type(-1))), double(Type::minVal));
     CHECK_CLOSE(double(std::log(Type(std::exp(1)))), 1, 1e-14);
     CHECK_CLOSE(double(std::log(Type(std::exp(2)))), 2, 1e-14);
     CHECK_CLOSE(double(std::log(FixedPoint<319, 64>(std::exp(200)))), 200, 1e-14);
