@@ -18,8 +18,8 @@ SUITE(MultiwordInteger) {
   }
 
   TEST(msb_construction) {
-    MultiwordInteger<4, uint16_t> a(int64_t(1)<<63);
-    CHECK_EQUAL(double(int64_t(1)<<63), a.operator double());
+    MultiwordInteger<4, uint16_t> a(int64_t(-1));
+    CHECK_EQUAL(double(-1), a.operator double());
   }
 
   TEST(storagetype_construction) {
@@ -388,7 +388,7 @@ SUITE(MultiwordInteger) {
 
   template<typename T>
   void shifts_perform() {
-    T a = 65536., b = 0., c;
+    T a = 65536., b = 0.;
 
     // Test shifting all bits out, when positive
     a >>= 17;
@@ -612,16 +612,22 @@ SUITE(MultiwordInteger) {
       CHECK_EQUAL(FixedPointHelpers::nlz(uint32_t(1)), 31);
       CHECK_EQUAL(FixedPointHelpers::nlz(uint16_t(1)), 15);
       CHECK_EQUAL(FixedPointHelpers::nlz(uint8_t(1)), 7);
-      CHECK_EQUAL(FixedPointHelpers::ilogb(0), INT_MIN);
+      CHECK_EQUAL(FixedPointHelpers::ilogb(0.), INT_MIN);
       CHECK_EQUAL(FixedPointHelpers::ilogb(0.5), -1);
-      CHECK_EQUAL(FixedPointHelpers::ilogb(2), 1);
-      CHECK_EQUAL(FixedPointHelpers::ilogb(-2), 1);
+      CHECK_EQUAL(FixedPointHelpers::ilogb(2.), 1);
+      CHECK_EQUAL(FixedPointHelpers::ilogb(-2.), 1);
       CHECK_EQUAL(FixedPointHelpers::ilogb(NAN), 0);
       CHECK_EQUAL(FixedPointHelpers::ilogb(INFINITY), INT_MAX);
   }
 }
 
 SUITE(FixedPoint) {
+  TEST(casts) {
+    FixedPoint<15, 16, uint32_t> a;
+    a = -0.5;
+    CHECK_EQUAL(int32_t(a), -1);
+  }
+
   TEST(construction) {
     FixedPoint<3, 28, uint16_t> a, b;
     FixedPoint<5, 26, uint32_t> c;
@@ -881,6 +887,25 @@ SUITE(FixedPoint) {
     CHECK_EQUAL(double(std::abs(a)), double(b));
     CHECK_EQUAL(double(std::abs(b)), double(b));
   }
+
+  TEST(ln2) {
+    using Type = FixedPoint<3, 60, uint32_t>;
+    Type b = std::ln2<3,60,uint32_t>();
+    CHECK_CLOSE(std::log(2), double(b), 1e-14);
+  } 
+  
+  TEST(log) {
+    using Type = FixedPoint<3, 28+32, uint32_t>;
+    CHECK_CLOSE(double(std::log(Type(std::exp(1)))), 1, 1e-14);
+    CHECK_CLOSE(double(std::log(Type(std::exp(2)))), 2, 1e-14);
+    CHECK_CLOSE(double(std::log(FixedPoint<319, 64>(std::exp(200)))), 200, 1e-14);
+  } 
+  
+  TEST(exp) {
+    using Type = FixedPoint<319, 64, uint32_t>;
+    Type b = 5;
+    CHECK_CLOSE(double(std::exp(b)), std::exp(double(b)), 1e-14);
+  } 
 
   TEST(raw_data) {
       FixedPoint<4, 11, uint16_t> a = 5.;

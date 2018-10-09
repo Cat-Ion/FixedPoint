@@ -22,9 +22,10 @@ FixedPoint<integerWidth, fractionalWidth, storageType>::FixedPoint(double v)
 template<int integerWidth, int fractionalWidth, typename storageType> constexpr
 FixedPoint<integerWidth, fractionalWidth, storageType>::FixedPoint(int v)
 {
-    if (v > 1 << integerWidth) {
+    constexpr int shiftAmount = (integerWidth >= sizeof(int)*8 - 1) ? 0 : integerWidth;
+    if (shiftAmount && v > (1 << shiftAmount)) {
         this->v = StorageType::_maxVal();
-    } else if(v < -(1<<integerWidth)) {
+    } else if(shiftAmount && v < -(1<<shiftAmount)) {
         this->v = StorageType::_minVal();
     } else {
         this->v = storageType(v);

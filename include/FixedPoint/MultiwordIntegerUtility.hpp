@@ -45,7 +45,7 @@ void MultiwordInteger<size, storageType>::fill_leading_bits(unsigned num) {
         i--;
     }
     if (num) {
-        s[i] |= (~static_cast<storageType>(0)) << (storageSize - num);
+        s[i] |= static_cast<storageType>(~storageType(0)) << (storageSize - num);
     }
 }
 

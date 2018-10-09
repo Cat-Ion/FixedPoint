@@ -9,7 +9,9 @@ template<unsigned size, typename storageType> constexpr MultiwordInteger<size, s
 {
     storageType c = 0;
     for(unsigned i = 0; i < size; i++) {
-        bigType t = this->s[i] + o.s[i] + c;
+        bigType t = this->s[i];
+        t += o.s[i];
+        t += c;
         this->s[i] = t;
         c = t >> storageSize;
     }
