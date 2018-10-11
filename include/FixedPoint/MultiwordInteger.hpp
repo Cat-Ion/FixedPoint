@@ -41,6 +41,8 @@ public:
     constexpr MultiwordInteger(int16_t v);
     constexpr MultiwordInteger(int32_t v);
     constexpr MultiwordInteger(int64_t v);
+    template<typename U = _storageType, typename EN = std::enable_if<std::is_same<U, unsigned long long>::value == false>>
+    constexpr MultiwordInteger(unsigned long long int v, typename EN::type * = 0);
     constexpr MultiwordInteger(float v);
     constexpr MultiwordInteger(double v);
     constexpr MultiwordInteger(long double v);
@@ -86,7 +88,9 @@ public:
     explicit constexpr operator int16_t() const;
     explicit constexpr operator int32_t() const;
     explicit constexpr operator int64_t() const;
+    explicit constexpr operator float() const;
     explicit constexpr operator double() const;
+    explicit constexpr operator long double() const;
 
     constexpr void get_raw(uint8_t *out) const;
 

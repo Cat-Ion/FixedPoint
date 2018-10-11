@@ -143,7 +143,7 @@ namespace std {
     log(FixedPoint<iw, fw, backingStorageType> x) {
         using Type = FixedPoint<iw, fw, backingStorageType>;
         Type retval = 0;
-        if (x < Type(0)) {
+        if (x <= Type(0)) {
             return FixedPoint<iw, fw, backingStorageType>::minVal;
         }
 

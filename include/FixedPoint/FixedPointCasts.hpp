@@ -6,18 +6,27 @@
 #include "FixedPoint.hpp"
 #include "FixedPointHelpers.hpp"
 
-template<int integerWidth, int fractionalWidth, typename storageType> constexpr
-FixedPoint<integerWidth, fractionalWidth, storageType>::operator double() const
-{
-    double dv = double(v);
-    double p2 = FixedPointHelpers::dipow(2., -fractionalWidth);
-    double r = p2 * dv;
-    return r;
+#define FLOAT_CAST(T) \
+template<int integerWidth, int fractionalWidth, typename storageType> constexpr \
+FixedPoint<integerWidth, fractionalWidth, storageType>::operator T() const \
+{ \
+    T dv = (T)(v); \
+    T p2 = FixedPointHelpers::dipow<T>(2., -fractionalWidth); \
+    T r = p2 * dv; \
+    return r; \
 }
 
-template<int integerWidth, int fractionalWidth, typename storageType> constexpr FixedPoint<integerWidth, fractionalWidth, storageType>::operator int8_t()  const { return int8_t (v>>fractionalWidth); }
-template<int integerWidth, int fractionalWidth, typename storageType> constexpr FixedPoint<integerWidth, fractionalWidth, storageType>::operator int16_t() const { return int16_t(v>>fractionalWidth); }
-template<int integerWidth, int fractionalWidth, typename storageType> constexpr FixedPoint<integerWidth, fractionalWidth, storageType>::operator int32_t() const { return int32_t(v>>fractionalWidth); }
-template<int integerWidth, int fractionalWidth, typename storageType> constexpr FixedPoint<integerWidth, fractionalWidth, storageType>::operator int64_t() const { return int64_t(v>>fractionalWidth); }
+FLOAT_CAST(float)
+FLOAT_CAST(double)
+FLOAT_CAST(long double)
+#undef FLOAT_CAST
+
+#define INT_CAST(T) \
+template<int integerWidth, int fractionalWidth, typename storageType> constexpr FixedPoint<integerWidth, fractionalWidth, storageType>::operator T()  const { return T (v>>fractionalWidth); }
+
+INT_CAST(int8_t)
+INT_CAST(int16_t)
+INT_CAST(int32_t)
+INT_CAST(int64_t)
 
 #endif // FIXEDPOINTCASTS_HPP
