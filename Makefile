@@ -4,7 +4,7 @@ ifneq (,$(findstring g++,$(CXX)))
 	CXXFLAGS += --coverage
 endif
 
-CXXFLAGS += -Wall -pedantic -std=c++14 -g -I$(UNITTEST_CPP_INCLUDE) -Iinclude
+CXXFLAGS += -Wall -pedantic -std=c++17 -g -I$(UNITTEST_CPP_INCLUDE) -Iinclude
 LDFLAGS = -lUnitTest++ -lgcov
 
 HEADERS = $(shell find include/ -type f)

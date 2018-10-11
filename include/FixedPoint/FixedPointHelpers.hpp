@@ -14,6 +14,19 @@ namespace FixedPointHelpers {
     template<> class make_bigger<uint16_t> { public: typedef uint32_t type; };
     template<> class make_bigger<uint32_t> { public: typedef uint64_t type; };
 
+    template<typename T, typename... Args>
+    struct is_one_of;
+    
+    template<typename T, typename U, typename... Us>
+    struct is_one_of<T, U, Us...> {
+        static constexpr bool value = std::is_same<T, U>::value || is_one_of<T, Us...>::value;
+    };
+    template<typename T>
+    struct is_one_of<T> {
+        static constexpr bool value = false;
+    };
+
+
     template<typename T>
     constexpr unsigned nlz_constexpr(T x_) {
         typedef typename std::make_unsigned<T>::type UT;

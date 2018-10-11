@@ -35,19 +35,20 @@ constexpr void FixedPoint<integerWidth, fractionalWidth, storageType>::construct
     }
 }
 
-#define CONSTRUCTOR template<int integerWidth, int fractionalWidth, typename storageType> constexpr FixedPoint<integerWidth, fractionalWidth, storageType>::FixedPoint
-
-#define CONSTRUCT_WITH_FUNCTION(T, FUN) \
-CONSTRUCTOR(T v) { \
-    FUN<T>(v);\
+template<int integerWidth, int fractionalWidth, typename storageType>
+template<typename T>
+constexpr FixedPoint<integerWidth, fractionalWidth, storageType>::FixedPoint(T const &v) {
+    constexpr bool is_floating_type = FixedPointHelpers::is_one_of<T, float, double, long double>::value;
+    constexpr bool is_signed_int_type = FixedPointHelpers::is_one_of<T, char, short, int, long, long long>::value;
+    static_assert(is_floating_type || is_signed_int_type, "T must be floating point or signed integer type");
+    if constexpr(is_floating_type) {
+        construct_from_float<T>(v);
+    } else if constexpr(is_signed_int_type) {
+        construct_from_int<T>(v);
+    }
 }
 
-CONSTRUCT_WITH_FUNCTION(float, construct_from_float)
-CONSTRUCT_WITH_FUNCTION(double, construct_from_float)
-CONSTRUCT_WITH_FUNCTION(long double, construct_from_float)
-CONSTRUCT_WITH_FUNCTION(int, construct_from_int)
-CONSTRUCT_WITH_FUNCTION(long int, construct_from_int)
-CONSTRUCT_WITH_FUNCTION(long long int, construct_from_int)
+#define CONSTRUCTOR template<int integerWidth, int fractionalWidth, typename storageType> constexpr FixedPoint<integerWidth, fractionalWidth, storageType>::FixedPoint
 
 CONSTRUCTOR(StorageType const &s) : v(s) {}
 
@@ -58,7 +59,6 @@ CONSTRUCTOR(unsigned long long int v)
 
 CONSTRUCTOR(FixedPoint const &o) : v(o.v) {}
 
-#undef CONSTRUCT_WITH_FUNCTION
 #undef CONSTRUCTOR
 
 template<int integerWidth, int fractionalWidth, typename storageType>

@@ -28,16 +28,13 @@ public:
     StorageType v;
 
     constexpr FixedPoint() : v(int64_t(0)) {}
-    constexpr FixedPoint(float v);
-    constexpr FixedPoint(double v);
-    constexpr FixedPoint(long double v);
-    constexpr FixedPoint(int v);
-    constexpr FixedPoint(long int v);
-    constexpr FixedPoint(long long int v);
     constexpr FixedPoint(unsigned long long int v);
     constexpr FixedPoint(FixedPoint const &o);
     constexpr FixedPoint(StorageType const &s);
     template<int oiw, int ofw, typename otherStorageType> constexpr FixedPoint(FixedPoint<oiw,ofw,otherStorageType> const &o);
+
+    template<typename T> 
+    constexpr FixedPoint(T const & v);
 
     static constexpr FP _maxVal();
     static constexpr FP _minVal();
@@ -52,7 +49,7 @@ public:
     constexpr FP& operator*=(FP const &o);
     constexpr FP& operator*=(int64_t const &o);
     constexpr FP& operator/=(FP const &o);
-	constexpr FP& operator/=(int64_t const &o);
+    constexpr FP& operator/=(int64_t const &o);
     constexpr FP& operator%=(FP const &o);
 
     constexpr FP operator-() const;

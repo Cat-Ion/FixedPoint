@@ -36,18 +36,15 @@ public:
     constexpr MultiwordInteger() : s{0} {}
     template<unsigned otherSize> constexpr MultiwordInteger(MultiwordInteger<otherSize, storageType> const &o);
     constexpr MultiwordInteger(storageType const &v);
+  
+    /**
+     * This constructor accepts an int*_t, unsigned long long, float, double, or long double
+     */
+    template<typename T>
+    constexpr MultiwordInteger(T v);
     
-    constexpr MultiwordInteger(int8_t v);
-    constexpr MultiwordInteger(int16_t v);
-    constexpr MultiwordInteger(int32_t v);
-    constexpr MultiwordInteger(int64_t v);
-    template<typename U = _storageType, typename EN = std::enable_if<std::is_same<U, unsigned long long>::value == false>>
-    constexpr MultiwordInteger(unsigned long long int v, typename EN::type * = 0);
-    constexpr MultiwordInteger(float v);
-    constexpr MultiwordInteger(double v);
-    constexpr MultiwordInteger(long double v);
-    
-    template<unsigned otherSize, typename otherStorageType> constexpr MultiwordInteger(MultiwordInteger<otherSize, otherStorageType> const &o);
+    template<unsigned otherSize, typename otherStorageType>
+    constexpr MultiwordInteger(MultiwordInteger<otherSize, otherStorageType> const &o);
 
     constexpr MultiwordInteger<size, storageType>& operator+=(MultiwordInteger<size, storageType> const &o);
     constexpr MultiwordInteger<size, storageType>& operator-=(MultiwordInteger<size, storageType> const &o);
