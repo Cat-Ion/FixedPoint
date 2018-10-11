@@ -46,6 +46,28 @@ template<unsigned size, typename storageType> constexpr MultiwordInteger<size, s
     return r;
 }
 
+template<unsigned size, typename storageType> constexpr MultiwordInteger<size, storageType>::operator float() const {
+    float r = 0;
+    float m = FixedPointHelpers::dipow(2.f, storageSize);
+    float n = 1;
+
+    if (this->is_positive()) {
+        return -float(-*this);
+    }
+
+    bigType c = 1;
+
+    for (unsigned i = 0; i < size; i++) {
+        c += static_cast<storageType>(~s[i]);
+        storageType u = c;
+        r += n * u;
+        n *= m;
+        c >>= storageSize;
+    }
+
+    return -r;
+}
+
 template<unsigned size, typename storageType> constexpr MultiwordInteger<size, storageType>::operator double() const {
     double r = 0;
     double m = FixedPointHelpers::dipow(2., storageSize);
@@ -53,6 +75,28 @@ template<unsigned size, typename storageType> constexpr MultiwordInteger<size, s
 
     if (this->is_positive()) {
         return -double(-*this);
+    }
+
+    bigType c = 1;
+
+    for (unsigned i = 0; i < size; i++) {
+        c += static_cast<storageType>(~s[i]);
+        storageType u = c;
+        r += n * u;
+        n *= m;
+        c >>= storageSize;
+    }
+
+    return -r;
+}
+
+template<unsigned size, typename storageType> constexpr MultiwordInteger<size, storageType>::operator long double() const {
+    long double r = 0;
+    long double m = FixedPointHelpers::dipow<long double>(2., storageSize);
+    long double n = 1;
+
+    if (this->is_positive()) {
+        return -(long double)(-*this);
     }
 
     bigType c = 1;

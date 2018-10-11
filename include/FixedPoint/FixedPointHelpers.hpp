@@ -42,8 +42,9 @@ namespace FixedPointHelpers {
         return __builtin_constant_p(x) ? nlz_constexpr(x) : __builtin_clz(x);
     }
 
-    constexpr double dipow(double base, int exponent) {
-        double ret = 1.;
+    template<typename T>
+    constexpr T dipow(T base, int exponent) {
+        T ret = 1.;
         if (exponent < 0) {
             base = 1./base;
             exponent = -exponent;
@@ -58,7 +59,7 @@ namespace FixedPointHelpers {
         return ret;
     }
 
-	constexpr int ilogb(double v) {
+    constexpr int ilogb(double v) {
         return v < 0         ? ilogb(-v) :
                std::isnan(v) ? 0 :
                std::isinf(v) ? INT_MAX :

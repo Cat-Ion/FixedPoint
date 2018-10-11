@@ -16,14 +16,25 @@ public:
 protected:
     typedef FixedPoint<_integerWidth,_fractionalWidth,backingStorageType> FP;
 
+    template<typename T>
+    constexpr void construct_from_float(T v);
+
+    template<typename T>
+    constexpr void construct_from_int(T v);
+    
 public:
     static const int fractionalWidth = _fractionalWidth;
     static const int integerWidth = _integerWidth;
     StorageType v;
 
     constexpr FixedPoint() : v(int64_t(0)) {}
+    constexpr FixedPoint(float v);
     constexpr FixedPoint(double v);
+    constexpr FixedPoint(long double v);
     constexpr FixedPoint(int v);
+    constexpr FixedPoint(long int v);
+    constexpr FixedPoint(long long int v);
+    constexpr FixedPoint(unsigned long long int v);
     constexpr FixedPoint(FixedPoint const &o);
     constexpr FixedPoint(StorageType const &s);
     template<int oiw, int ofw, typename otherStorageType> constexpr FixedPoint(FixedPoint<oiw,ofw,otherStorageType> const &o);
@@ -53,7 +64,9 @@ public:
     constexpr bool is_positive() const;
     constexpr FP nabs() const;
 
+    explicit constexpr operator float()  const;
     explicit constexpr operator double()  const;
+    explicit constexpr operator long double()  const;
     explicit constexpr operator int8_t()  const;
     explicit constexpr operator int16_t() const;
     explicit constexpr operator int32_t() const;

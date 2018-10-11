@@ -35,8 +35,8 @@ SUITE(MultiwordInteger) {
   }
 
   TEST(double_construction) {
-    MultiwordInteger<4, uint16_t> a;
-    for (unsigned i = 0; i < 63; i++) {
+    MultiwordInteger<20, uint16_t> a;
+    for (unsigned i = 0; i < 200; i++) {
       double b = pow(2., i);
       a = b;
       CHECK_EQUAL(b, a.operator double());
@@ -905,7 +905,8 @@ SUITE(FixedPoint) {
     CHECK_EQUAL(double(std::log(Type(-1))), double(Type::minVal));
     CHECK_CLOSE(double(std::log(Type(std::exp(1)))), 1, 1e-14);
     CHECK_CLOSE(double(std::log(Type(std::exp(2)))), 2, 1e-14);
-    CHECK_CLOSE(double(std::log(FixedPoint<319, 64>(std::exp(200)))), 200, 1e-14);
+
+    CHECK_CLOSE(200, double(std::log(FixedPoint<319, 64>(std::exp(200)))), 1e-14);
   } 
   
   TEST(exp) {
